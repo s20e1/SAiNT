@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>통합 기록 및 응급 관리 플랫폼</title>
-  <!-- Tailwind CSS -->
+  
+  <!-- Pretendard Font & Tailwind CSS -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -12,65 +14,84 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8'
-            },
-            emergency: {
-              50: '#fef2f2',
-              100: '#fee2e2',
-              500: '#ef4444',
-              600: '#dc2626',
-              700: '#b91c1c'
+            toss: {
+              blue: '#3182f6',
+              blueHover: '#1b64da',
+              lightBlue: '#e8f3ff',
+              bg: '#f2f4f6',
+              darkBg: '#101012',
+              card: '#ffffff',
+              darkCard: '#1c1c1e',
+              text: '#191f28',
+              subtext: '#6b7684',
+              border: '#e5e8eb',
+              darkBorder: '#2c2c2e',
+              red: '#f04452',
+              lightRed: '#feeef0'
             }
+          },
+          borderRadius: {
+            '2xl': '18px',
+            '3xl': '24px',
+            '4xl': '32px'
           }
         }
       }
     };
   </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
+    @font-face {
+      font-family: 'A2Z';
+      src: local('A2Z'), local('에이투지'), local('A2Z-Regular');
+      font-display: swap;
+    }
+
     :root {
-      --bg-main: #f8fafc;
+      --bg-main: #f2f4f6;
       --bg-card: #ffffff;
-      --border-color: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
+      --border-color: rgba(0, 0, 0, 0.04);
+      --text-main: #191f28;
+      --text-muted: #6b7684;
     }
 
     .dark {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --border-color: #334155;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg-main: #101012;
+      --bg-card: #1c1c1e;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f2f4f6;
+      --text-muted: #8b95a1;
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'A2Z', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
       background-color: var(--bg-main);
       color: var(--text-main);
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      letter-spacing: -0.02em;
     }
 
-    .custom-card {
+    .toss-card {
       background-color: var(--bg-card);
       border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .toss-button {
+      transition: all 0.15s ease-in-out;
+    }
+    .toss-button:active {
+      transform: scale(0.98);
     }
 
     /* Side drawer transitions */
     .drawer-overlay {
-      transition: opacity 0.3s ease-in-out;
+      transition: opacity 0.25s ease-in-out;
     }
     .drawer-content {
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Hide scrollbar for clean UI */
+    /* Scrollbar */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -83,1559 +104,210 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col antialiased selection:bg-toss-blue selection:text-white">
 
-  <!-- Top Application Header -->
-  <header class="sticky top-0 z-40 w-full custom-card border-b backdrop-blur bg-opacity-90 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      
-      <!-- Brand Logo & Title -->
-      <div class="flex items-center gap-3">
-        <div onclick="switchView('dashboard')" class="cursor-pointer flex items-center gap-2 group">
-          <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-brand-700 transition">
-            P
-          </div>
-          <div class="flex flex-col">
-            <span class="font-bold text-base sm:text-lg tracking-tight leading-tight">통합 기록 관리</span>
-            <span class="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">통합 시스템 플랫폼</span>
-          </div>
+  <!-- Mandatory Auth Screen (Full Screen Overlay when Not Authenticated) -->
+  <div id="auth-screen" class="fixed inset-0 z-50 bg-toss-bg dark:bg-toss-darkBg flex items-center justify-center p-4 transition-opacity duration-300">
+    <div class="toss-card max-w-md w-full rounded-3xl p-8 space-y-8 shadow-xl">
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-toss-blue text-white font-bold text-2xl flex items-center justify-center mx-auto shadow-md">
+          P
         </div>
-
-        <!-- Dynamic Service Mode Indicator Badge -->
-        <span id="current-mode-badge" class="ml-2 px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-          학습 정리 모드
-        </span>
-      </div>
-
-      <!-- Action Buttons & Controls -->
-      <div class="flex items-center gap-2">
-        <!-- Service Mode Toggle Button -->
-        <button onclick="toggleServiceMode()" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-300 dark:border-slate-600 flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-          <span class="hidden sm:inline">모드 전환</span>
-        </button>
-
-        <!-- Dark/Light Theme Switcher -->
-        <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200" title="테마 변경">
-          <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-        </button>
-
-        <!-- Account / Login Button -->
-        <button id="btn-auth-trigger" onclick="openAuthModal()" class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition">
-          로그인
-        </button>
-
-        <!-- Side Drawer Open Button -->
-        <button onclick="toggleDrawer(true)" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition border border-slate-300 dark:border-slate-600">
-          <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- Navigation Drawer (Side Menu) -->
-  <div id="drawer-overlay" class="drawer-overlay fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity" onclick="toggleDrawer(false)"></div>
-  
-  <aside id="nav-drawer" class="drawer-content fixed top-0 right-0 z-50 w-80 h-full custom-card border-l shadow-2xl translate-x-full flex flex-col transition-transform duration-300">
-    <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="font-bold text-lg">전체 메뉴</span>
-      </div>
-      <button onclick="toggleDrawer(false)" class="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-    </div>
-
-    <div class="p-4 flex-1 overflow-y-auto space-y-6">
-      
-      <!-- User Profile Card in Drawer -->
-      <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
-        <div class="text-xs font-semibold text-slate-400 mb-1">접속 계정 정보</div>
-        <div id="drawer-user-email" class="font-semibold text-sm truncate">비로그인 상태</div>
-        <div id="drawer-user-id" class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">게스트 사용자</div>
-      </div>
-
-      <!-- Study Mode Navigation Links -->
-      <div id="nav-group-study" class="space-y-1">
-        <div class="px-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">학습 정리 메뉴</div>
-        <button id="btn-nav-study-dashboard" onclick="switchView('dashboard')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-between">
-          <span>노트 목록</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300">메인</span>
-        </button>
-        <button id="btn-nav-write-study" onclick="openWritePane('학습')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          새 학습 노트 작성
-        </button>
-        <button id="btn-nav-templates" onclick="switchView('templates')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          작성 템플릿
-        </button>
-      </div>
-
-      <!-- Emergency Mode Navigation Links -->
-      <div id="nav-group-emr" class="space-y-1">
-        <div class="px-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">보건 및 응급 메뉴</div>
-        <button id="btn-nav-emr-dashboard" onclick="switchView('dashboard')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-between">
-          <span>기록 목록</span>
-          <span class="text-xs px-2 py-0.5 rounded bg-emergency-100 text-emergency-700 dark:bg-emergency-900 dark:text-emergency-300">메인</span>
-        </button>
-        <button id="btn-nav-write-emr" onclick="openWritePane('응급')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          새 응급 기록 작성
-        </button>
-        <button id="btn-nav-ice" onclick="switchView('ice')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          응급 참고 프로필 설정
-        </button>
-      </div>
-
-      <!-- Shared Utilities Navigation Links -->
-      <div class="space-y-1 pt-4 border-t border-slate-200 dark:border-slate-700">
-        <div class="px-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">공통 유틸리티</div>
-        <button id="btn-nav-supplies" onclick="switchView('supplies')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          물품 수급 관리
-        </button>
-        <button id="btn-nav-stats" onclick="switchView('stats')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          기록 통계 분석
-        </button>
-        <button id="btn-nav-csv" onclick="switchView('csv')" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          CSV 데이터 대량 처리
-        </button>
-        <button onclick="triggerPrintReport()" class="w-full text-left px-3 py-2.5 rounded-lg font-medium text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          보고서 인쇄 서식 출력
-        </button>
-      </div>
-
-    </div>
-
-    <!-- Drawer Footer Logout -->
-    <div class="p-4 border-t border-slate-200 dark:border-slate-700">
-      <button id="btn-drawer-logout" onclick="handleLogout()" class="w-full py-2.5 px-4 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 font-semibold text-sm transition">
-        로그아웃
-      </button>
-    </div>
-  </aside>
-
-  <!-- Main Content Area -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-    <!-- Global Top Utility Toolbar (Search, Filter, Actions) -->
-    <section id="global-toolbar" class="mb-6 custom-card p-4 rounded-2xl shadow-sm space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
-      <div class="flex-1 flex flex-col sm:flex-row items-center gap-3">
-        
-        <!-- Search Input -->
-        <div class="relative w-full sm:w-72">
-          <input type="text" id="input-search" oninput="handleSearchFilter()" placeholder="제목 및 내용 검색..." class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
-          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-        </div>
-
-        <!-- Category Filter -->
-        <select id="select-category-filter" onchange="handleSearchFilter()" class="w-full sm:w-48 px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500 transition">
-          <option value="ALL">전체 카테고리</option>
-          <option value="학습 노트">학습 노트</option>
-          <option value="응급 및 보건">응급 및 보건</option>
-          <option value="일반 메모">일반 메모</option>
-        </select>
-
-        <!-- Favorites Only Toggle -->
-        <button id="btn-toggle-favorites" onclick="toggleFavoritesFilter()" class="w-full sm:w-auto px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
-          <span id="fav-filter-text">고정 항목만 보기</span>
-        </button>
-
-      </div>
-
-      <!-- Quick Write Action Button -->
-      <div class="flex items-center gap-2">
-        <button onclick="openWritePane()" class="w-full sm:w-auto px-4 py-2 text-sm font-bold rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition shadow-sm flex items-center justify-center gap-1">
-          <span>+ 새 기록 작성</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- VIEW PANE 1: Main Records Dashboard Pane -->
-    <section id="pane-dashboard" class="view-pane space-y-6">
-      
-      <!-- Top Overview Stats Summary Card -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="custom-card p-4 rounded-2xl border flex items-center justify-between">
-          <div>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold">전체 기록 건수</div>
-            <div id="stat-total-count" class="text-2xl font-extrabold mt-1">0</div>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 flex items-center justify-center font-bold">건</div>
-        </div>
-
-        <div class="custom-card p-4 rounded-2xl border flex items-center justify-between">
-          <div>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold">고정 / 중요 항목</div>
-            <div id="stat-fav-count" class="text-2xl font-extrabold mt-1">0</div>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center font-bold">중요</div>
-        </div>
-
-        <div class="custom-card p-4 rounded-2xl border flex items-center justify-between">
-          <div>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-semibold">첨부파일 유무</div>
-            <div id="stat-file-count" class="text-2xl font-extrabold mt-1">0</div>
-          </div>
-          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center font-bold">파일</div>
-        </div>
-      </div>
-
-      <!-- Notes Grid / List Zone -->
-      <div class="custom-card p-6 rounded-2xl border">
-        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-700">
-          <h3 id="dashboard-list-title" class="text-lg font-bold">저장된 기록 목록</h3>
-          <span class="text-xs text-slate-500">최신순 정렬</span>
-        </div>
-
-        <div id="notes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Dynamically populated card items -->
-        </div>
-
-        <!-- Empty State Container -->
-        <div id="notes-empty-state" class="py-12 text-center text-slate-400 hidden">
-          <p class="text-base font-semibold">등록된 기록이 없습니다.</p>
-          <p class="text-xs mt-1">새 기록 작성 버튼을 눌러 첫 번째 기록을 남겨보세요.</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- VIEW PANE 2: New / Edit Record Form Pane -->
-    <section id="pane-write" class="view-pane hidden max-w-3xl mx-auto">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border space-y-6">
-        
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-4">
-          <div>
-            <h3 id="write-form-title" class="text-xl font-bold">새 기록 작성</h3>
-            <p class="text-xs text-slate-500 mt-1">학습 내용 또는 응급/보건 기록을 입력하세요.</p>
-          </div>
-          <!-- Auto Save Status Indicator -->
-          <span id="autosave-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-            임시 저장 비활성
-          </span>
-        </div>
-
-        <!-- Form Input Fields -->
-        <form id="form-record" onsubmit="handleSaveRecord(event)" class="space-y-5">
-          <input type="hidden" id="reg-id" value="">
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">분류 카테고리</label>
-              <select id="reg-category" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="학습 노트">학습 노트</option>
-                <option value="응급 및 보건">응급 및 보건</option>
-                <option value="일반 메모">일반 메모</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">상단 고정 여부</label>
-              <select id="reg-favorite" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="false">일반 항목</option>
-                <option value="true">중요 항목 (목록 상단 고정)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">제목</label>
-            <input type="text" id="reg-title" required oninput="triggerAutoSave()" placeholder="제목을 입력하세요" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">주요 내용 요약</label>
-            <textarea id="reg-summary" rows="2" oninput="triggerAutoSave()" placeholder="핵심 내용 2-3줄 요약" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y"></textarea>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">상세 메모</label>
-            <textarea id="reg-details" rows="6" oninput="triggerAutoSave()" placeholder="세부적인 내용 작성..." class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y"></textarea>
-          </div>
-
-          <!-- File Attachment Selector (Keynote, Goodnotes, PDF, Images) -->
-          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-2">
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
-              첨부 파일 (Keynote, 굿노트, PDF, 사진 지원)
-            </label>
-            <input type="file" id="reg-file" accept=".pdf, .key, .goodnotes, image/*" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 dark:file:bg-brand-950 dark:file:text-brand-300 hover:file:bg-brand-100 cursor-pointer">
-            <div id="file-attached-info" class="text-xs text-emerald-600 dark:text-emerald-400 hidden"></div>
-          </div>
-
-          <!-- Buttons -->
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <button type="button" onclick="switchView('dashboard')" class="px-5 py-2.5 text-sm font-semibold rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-              취소
-            </button>
-            <button type="submit" class="px-6 py-2.5 text-sm font-bold rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition shadow-sm">
-              저장하기
-            </button>
-          </div>
-        </form>
-
-      </div>
-    </section>
-
-    <!-- VIEW PANE 3: Emergency Reference Profile Pane (ICE) -->
-    <section id="pane-ice" class="view-pane hidden max-w-2xl mx-auto">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border border-red-200 dark:border-red-900/50 space-y-6">
-        
-        <div class="border-b border-red-100 dark:border-red-900/40 pb-4">
-          <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">응급 전용</span>
-          <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mt-2">응급 참고 프로필 설정</h3>
-          <p class="text-xs text-slate-500 mt-1">비상 상황 시 주변 의료진이나 대리인이 즉시 참고할 정보입니다.</p>
-        </div>
-
-        <form id="form-ice-profile" onsubmit="handleSaveICEProfile(event)" class="space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">성명</label>
-              <input type="text" id="ice-name" required placeholder="홍길동" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">고유 식별 ID</label>
-              <input type="text" id="ice-id" placeholder="M-2026-001" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">혈액형</label>
-              <input type="text" id="ice-blood" placeholder="예: RH+ A형" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">비상 연락처</label>
-              <input type="text" id="ice-contact" placeholder="010-0000-0000 (보호자)" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">알레르기 보유 정보</label>
-            <input type="text" id="ice-allergy" placeholder="예: 페니실린 알레르기, 복숭아 알레르기" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">기저질환 및 주요 특이사항</label>
-            <textarea id="ice-disease" rows="3" placeholder="예: 천식 약 복용 중, 당뇨 관리 필요" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-red-500 resize-y"></textarea>
-          </div>
-
-          <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end">
-            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 text-sm font-bold rounded-xl bg-red-600 hover:bg-red-700 text-white transition shadow-sm">
-              응급 프로필 업데이트
-            </button>
-          </div>
-        </form>
-
-      </div>
-    </section>
-
-    <!-- VIEW PANE 4: Item Supply Inventory Management Pane -->
-    <section id="pane-supplies" class="view-pane hidden space-y-6">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border space-y-6">
-        
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-700 pb-4">
-          <div>
-            <h3 class="text-xl font-bold">물품 수급 관리</h3>
-            <p class="text-xs text-slate-500 mt-1">보건용 품목 및 학습 자재 수급 재고를 실시간 관리합니다.</p>
-          </div>
-          <button onclick="openAddSupplyModal()" class="px-4 py-2 text-sm font-bold rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition shadow-sm">
-            + 새 물품 등록
-          </button>
-        </div>
-
-        <!-- Inventory Alert Warning Box -->
-        <div id="supplies-low-alert" class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-semibold hidden">
-          주의: 수량이 부족한 물품이 발견되었습니다. 보충 재고를 확인하세요.
-        </div>
-
-        <!-- Inventory List Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr class="border-b border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-400 uppercase">
-                <th class="py-3 px-3">품목명</th>
-                <th class="py-3 px-3">분류</th>
-                <th class="py-3 px-3">현재 재고</th>
-                <th class="py-3 px-3">최소 필요량</th>
-                <th class="py-3 px-3 text-right">수량 조정</th>
-              </tr>
-            </thead>
-            <tbody id="supplies-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- VIEW PANE 5: Templates Pane -->
-    <section id="pane-templates" class="view-pane hidden space-y-6">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border space-y-6">
-        <div>
-          <h3 class="text-xl font-bold">작성 템플릿</h3>
-          <p class="text-xs text-slate-500 mt-1">자주 사용하는 서식을 선택하여 빠르게 글을 시작하세요.</p>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div onclick="applyTemplate('cornell')" class="p-5 rounded-xl custom-card border hover:border-brand-500 cursor-pointer transition space-y-2">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300">학습용</span>
-            <h4 class="font-bold text-base">코넬 노트 작성 서식</h4>
-            <p class="text-xs text-slate-500">키워드, 핵심 요약, 질의응답 구조로 학습 정리</p>
-          </div>
-
-          <div onclick="applyTemplate('incident')" class="p-5 rounded-xl custom-card border hover:border-red-500 cursor-pointer transition space-y-2">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">응급용</span>
-            <h4 class="font-bold text-base">응급 상황 및 조치 일지</h4>
-            <p class="text-xs text-slate-500">발생 시각, 발생 장소, 경과 및 조치 내용 체계적 입력</p>
-          </div>
-
-          <div onclick="applyTemplate('meeting')" class="p-5 rounded-xl custom-card border hover:border-slate-500 cursor-pointer transition space-y-2">
-            <span class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">일반용</span>
-            <h4 class="font-bold text-base">회의 및 서면 요약 서식</h4>
-            <p class="text-xs text-slate-500">안건, 주요 의결 사항, 향후 실행 계획 구획 작성</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW PANE 6: Statistics & Analytics Pane -->
-    <section id="pane-stats" class="view-pane hidden space-y-6">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border space-y-6">
-        <div>
-          <h3 class="text-xl font-bold">기록 통계 분석</h3>
-          <p class="text-xs text-slate-500 mt-1">저장된 데이터 항목별 구성 비중 및 현황입니다.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Category Breakdown Bar Chart -->
-          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
-            <h4 class="font-bold text-sm">카테고리별 비중 현황</h4>
-            
-            <div class="space-y-3">
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span>학습 노트</span>
-                  <span id="stat-bar-study-val">0건 (0%)</span>
-                </div>
-                <div class="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div id="stat-bar-study" class="h-full bg-brand-600 transition-all duration-500" style="width: 0%;"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span>응급 및 보건</span>
-                  <span id="stat-bar-emr-val">0건 (0%)</span>
-                </div>
-                <div class="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div id="stat-bar-emr" class="h-full bg-emergency-600 transition-all duration-500" style="width: 0%;"></div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs font-semibold mb-1">
-                  <span>일반 메모</span>
-                  <span id="stat-bar-general-val">0건 (0%)</span>
-                </div>
-                <div class="w-full h-3 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  <div id="stat-bar-general" class="h-full bg-slate-500 transition-all duration-500" style="width: 0%;"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Metrics Card -->
-          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-            <h4 class="font-bold text-sm">데이터 요약 보고</h4>
-            <div class="space-y-2 my-4 text-xs">
-              <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
-                <span class="text-slate-500">등록된 총 항목</span>
-                <span id="stat-metrics-total" class="font-bold">0건</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
-                <span class="text-slate-500">첨부 파일 포함 건수</span>
-                <span id="stat-metrics-files" class="font-bold">0건</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-800">
-                <span class="text-slate-500">고정 등록 건수</span>
-                <span id="stat-metrics-favs" class="font-bold">0건</span>
-              </div>
-            </div>
-            <button onclick="triggerPrintReport()" class="w-full py-2 text-xs font-bold rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-              통계 보고서 인쇄
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- VIEW PANE 7: CSV Bulk Import/Export Pane -->
-    <section id="pane-csv" class="view-pane hidden max-w-2xl mx-auto">
-      <div class="custom-card p-6 sm:p-8 rounded-2xl border space-y-6">
-        <div>
-          <h3 class="text-xl font-bold">CSV 데이터 대량 연동 및 백업</h3>
-          <p class="text-xs text-slate-500 mt-1">Numbers 및 Excel 호환 CSV 파일 업로드 / 다운로드를 지원합니다.</p>
-        </div>
-
-        <!-- Export CSV Section -->
-        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-3">
-          <h4 class="font-bold text-sm">전체 데이터 CSV 내보내기 (다운로드)</h4>
-          <p class="text-xs text-slate-500">현재 시스템에 저장된 모든 기록 데이터를 쉼표(,) 구분 CSV 파일로 백업합니다.</p>
-          <button onclick="exportToCSV()" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 transition">
-            CSV 파일 다운로드
-          </button>
-        </div>
-
-        <!-- Import CSV Section -->
-        <div class="p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 space-y-3">
-          <h4 class="font-bold text-sm">CSV 파일 일괄 가져오기 (업로드)</h4>
-          <p class="text-xs text-slate-500">작성된 CSV 파일을 읽어와 한 번에 대량 등록합니다. (형식: 카테고리,제목,요약,상세내용)</p>
-          <input type="file" id="csv-file-input" accept=".csv" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-800 cursor-pointer">
-          <button onclick="importFromCSV()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition">
-            일괄 등록 실행
-          </button>
-        </div>
-
-      </div>
-    </section>
-
-  </main>
-
-  <!-- MODAL 1: Detail View & Edit Modal -->
-  <div id="detail-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
-    <div class="custom-card max-w-2xl w-full rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto space-y-5">
-      <div class="flex items-start justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
-        <div>
-          <span id="detail-modal-category" class="text-xs font-bold px-2.5 py-0.5 rounded bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300">카테고리</span>
-          <h3 id="detail-modal-title" class="text-xl font-bold mt-2">상세 정보 제목</h3>
-          <div id="detail-modal-date" class="text-xs text-slate-400 mt-1">작성일자</div>
-        </div>
-        <button onclick="closeDetailModal()" class="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-
-      <div class="space-y-4 text-sm">
-        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
-          <div class="text-xs font-bold text-slate-400 mb-1">주요 내용 요약</div>
-          <div id="detail-modal-summary" class="font-medium">요약 내용</div>
-        </div>
-
-        <div>
-          <div class="text-xs font-bold text-slate-400 mb-1">상세 메모</div>
-          <div id="detail-modal-details" class="whitespace-pre-wrap leading-relaxed text-slate-700 dark:text-slate-300">상세 정보가 표시됩니다.</div>
-        </div>
-
-        <!-- Attached file display zone -->
-        <div id="detail-modal-file-zone" class="p-3 rounded-xl border border-slate-200 dark:border-slate-700 hidden">
-          <div class="text-xs font-bold text-slate-400 mb-1">첨부 파일</div>
-          <a id="detail-modal-file-link" href="#" target="_blank" download class="text-xs font-bold text-brand-600 underline hover:text-brand-700 truncate block">
-            다운로드
-          </a>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-        <button id="btn-detail-delete" onclick="handleDeleteCurrentDetail()" class="px-3.5 py-2 text-xs font-bold rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition">
-          삭제하기
-        </button>
-        <div class="flex gap-2">
-          <button id="btn-detail-edit" onclick="handleEditCurrentDetail()" class="px-4 py-2 text-xs font-bold rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition">
-            수정하기
-          </button>
-          <button onclick="closeDetailModal()" class="px-4 py-2 text-xs font-bold rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition">
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL 2: Authentication Modal -->
-  <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
-    <div class="custom-card max-w-md w-full rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
-        <h3 id="auth-modal-title" class="text-lg font-bold">계정 로그인</h3>
-        <button onclick="closeAuthModal()" class="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
+        <h2 id="auth-screen-title" class="text-2xl font-bold tracking-tight text-toss-text dark:text-white pt-2">로그인이 필요합니다</h2>
+        <p id="auth-screen-sub" class="text-sm text-toss-subtext dark:text-toss-subtext">서비스 이용을 위해 계정에 로그인해주세요.</p>
       </div>
 
       <form id="form-auth" onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">이메일 주소</label>
-          <input type="email" id="auth-email" required placeholder="user@example.com" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">이메일</label>
+          <input type="email" id="auth-email" required placeholder="example@toss.im" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">비밀번호</label>
-          <input type="password" id="auth-password" required placeholder="비밀번호 입력" class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-brand-500">
+          <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">비밀번호</label>
+          <input type="password" id="auth-password" required placeholder="비밀번호를 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
         </div>
 
-        <button type="submit" id="btn-auth-submit" class="w-full py-2.5 text-sm font-bold rounded-xl bg-brand-600 hover:bg-brand-700 text-white transition">
-          로그인
+        <button type="submit" id="btn-auth-submit" class="toss-button w-full py-4 text-base font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm mt-2">
+          로그인하기
         </button>
       </form>
 
-      <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-200 dark:border-slate-700">
-        <button onclick="toggleAuthMode()" id="btn-auth-toggle" class="text-brand-600 font-bold hover:underline">
-          신규 회원가입으로 전환
+      <div class="flex items-center justify-between text-xs text-toss-subtext pt-2 px-1">
+        <button onclick="toggleAuthMode()" id="btn-auth-toggle" class="font-semibold text-toss-blue hover:underline">
+          신규 회원가입
         </button>
-        <button onclick="handlePasswordReset()" class="text-slate-400 hover:underline">
+        <button onclick="handlePasswordReset()" class="hover:underline">
           비밀번호 재설정
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 3: Add Item Supply Modal -->
-  <div id="supply-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
-    <div class="custom-card max-w-md w-full rounded-2xl shadow-2xl p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
-        <h3 class="text-base font-bold">새 물품 등록</h3>
-        <button onclick="closeAddSupplyModal()" class="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+  <!-- Main Authenticated App Container -->
+  <div id="main-app" class="min-h-screen flex flex-col hidden">
+
+    <!-- Top Application Header -->
+    <header class="sticky top-0 z-40 w-full toss-card border-b backdrop-blur-md bg-opacity-80 dark:bg-opacity-80 transition-colors">
+      <div class="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+        
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center gap-3">
+          <div onclick="switchView('dashboard')" class="cursor-pointer flex items-center gap-2.5 group">
+            <div class="w-8 h-8 rounded-xl bg-toss-blue flex items-center justify-center text-white font-bold text-base shadow-sm">
+              P
+            </div>
+            <span class="font-bold text-lg tracking-tight">기록 플랫폼</span>
+          </div>
+
+          <span id="current-mode-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightBlue text-toss-blue border border-toss-blue/10">
+            학습 정리 모드
+          </span>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex items-center gap-2">
+          <!-- Service Mode Toggle -->
+          <button onclick="toggleServiceMode()" class="toss-button px-3.5 py-2 text-xs font-bold rounded-xl bg-toss-bg dark:bg-toss-darkCard text-toss-text dark:text-white hover:bg-toss-border/60 transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-toss-subtext" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            <span class="hidden sm:inline">모드 전환</span>
+          </button>
+
+          <!-- Dark/Light Theme -->
+          <button onclick="toggleDarkMode()" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition text-toss-text dark:text-white" title="테마 변경">
+            <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </button>
+
+          <!-- Navigation Menu Trigger -->
+          <button onclick="toggleDrawer(true)" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition">
+            <svg class="w-5 h-5 text-toss-text dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Side Navigation Drawer -->
+    <div id="drawer-overlay" class="drawer-overlay fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity" onclick="toggleDrawer(false)"></div>
+    
+    <aside id="nav-drawer" class="drawer-content fixed top-0 right-0 z-50 w-80 h-full toss-card border-l shadow-2xl translate-x-full flex flex-col transition-transform duration-300">
+      <div class="p-6 border-b border-toss-border dark:border-toss-darkBorder flex items-center justify-between">
+        <span class="font-bold text-lg">메뉴</span>
+        <button onclick="toggleDrawer(false)" class="p-1.5 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
       </div>
 
-      <form id="form-add-supply" onsubmit="handleAddSupplySubmit(event)" class="space-y-3">
-        <div>
-          <label class="block text-xs font-bold mb-1">품목명</label>
-          <input type="text" id="supp-name" required placeholder="예: 구급 반창고" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent">
+      <div class="p-5 flex-1 overflow-y-auto space-y-6">
+        
+        <!-- User Account Card -->
+        <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg border border-toss-border dark:border-toss-darkBorder space-y-1">
+          <div class="text-xs font-semibold text-toss-subtext">로그인된 계정</div>
+          <div id="drawer-user-email" class="font-bold text-sm truncate text-toss-text dark:text-white">사용자 계정</div>
+          <div id="drawer-user-id" class="text-xs text-toss-subtext truncate font-mono pt-0.5">ID: -</div>
         </div>
-        <div>
-          <label class="block text-xs font-bold mb-1">분류</label>
-          <input type="text" id="supp-cat" required placeholder="예: 소모품" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent">
+
+        <!-- Navigation Links -->
+        <div id="nav-group-study" class="space-y-1">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">학습 메뉴</div>
+          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>기록 목록</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightBlue text-toss-blue font-bold">메인</span>
+          </button>
+          <button onclick="openWritePane('학습')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            새 학습 노트 작성
+          </button>
+          <button onclick="switchView('templates')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            작성 템플릿
+          </button>
         </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-bold mb-1">초기 수량</label>
-            <input type="number" id="supp-qty" required value="10" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent">
-          </div>
-          <div>
-            <label class="block text-xs font-bold mb-1">최소 필요 수량</label>
-            <input type="number" id="supp-min" required value="5" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 bg-transparent">
-          </div>
+
+        <div id="nav-group-emr" class="space-y-1 hidden">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">보건/응급 메뉴</div>
+          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>응급 기록 목록</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">메인</span>
+          </button>
+          <button onclick="openWritePane('응급')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            새 응급 기록 작성
+          </button>
+          <button onclick="switchView('ice')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            응급 참고 프로필 설정
+          </button>
         </div>
-        <button type="submit" class="w-full py-2.5 text-sm font-bold rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition">
-          물품 등록 저장
+
+        <div class="space-y-1 pt-4 border-t border-toss-border dark:border-toss-darkBorder">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">유틸리티</div>
+          <button onclick="switchView('supplies')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            물품 수급 관리
+          </button>
+          <button onclick="switchView('stats')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            통계 및 분석
+          </button>
+          <button onclick="switchView('csv')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            CSV 대량 연동
+          </button>
+          <button onclick="triggerPrintReport()" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            보고서 인쇄
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Drawer Logout -->
+      <div class="p-5 border-t border-toss-border dark:border-toss-darkBorder">
+        <button onclick="handleLogout()" class="toss-button w-full py-3.5 px-4 rounded-2xl bg-toss-lightRed hover:bg-red-100 dark:bg-toss-red/10 text-toss-red font-bold text-sm transition">
+          로그아웃
         </button>
-      </form>
-    </div>
-  </div>
+      </div>
+    </aside>
 
-  <!-- Toast Notification Popups (Emoji Free) -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs sm:text-sm font-semibold px-5 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 border border-slate-700 flex items-center gap-2">
-    <span id="toast-message">알림 메시지</span>
-  </div>
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
 
-  <!-- Printable Hidden Container for Exporting PDF / Reports -->
-  <div id="printable-area" class="hidden">
-    <!-- Populated dynamically on print trigger -->
-  </div>
-
-  <!-- Firebase Scripts Integration -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { 
-      getAuth, 
-      signInAnonymously, 
-      signInWithCustomToken, 
-      onAuthStateChanged,
-      signOut,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      sendPasswordResetEmail
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      updateDoc, 
-      deleteDoc, 
-      collection, 
-      onSnapshot, 
-      addDoc, 
-      query 
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Initialize App & Firebase Safely
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'integrated-app-v1';
-    let firebaseConfig = {};
-    try {
-      firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-        apiKey: "demo-api-key",
-        authDomain: "demo.firebaseapp.com",
-        projectId: "demo-project",
-        storageBucket: "demo.appspot.com",
-        appId: "1:demo:web:123"
-      };
-    } catch (e) {
-      console.warn("Firebase config fallback active");
-    }
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Global Application State Variables
-    window.state = {
-      user: null,
-      currentMode: 'STUDY', // 'STUDY' vs 'EMR'
-      notes: [],
-      iceProfile: null,
-      supplies: [
-        { id: '1', name: '구급 소독약', category: '보건용품', qty: 8, minQty: 3 },
-        { id: '2', name: '학습 메모지', category: '학습자재', qty: 2, minQty: 5 }
-      ],
-      filterCategory: 'ALL',
-      searchQuery: '',
-      favoritesOnly: false,
-      activeDetailItem: null,
-      autoSaveTimer: null,
-      isAuthSignUp: false
-    };
-
-    // Firebase Auth State Listener
-    async function initAuth() {
-      if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-        try {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } catch(e) {
-          await signInAnonymously(auth);
-        }
-      } else {
-        await signInAnonymously(auth);
-      }
-
-      onAuthStateChanged(auth, (user) => {
-        window.state.user = user;
-        updateUserUI();
-        if (user) {
-          subscribeFirestoreData();
-        }
-      });
-    }
-
-    // Update Header and Drawer user info
-    function updateUserUI() {
-      const user = window.state.user;
-      const emailElem = document.getElementById('drawer-user-email');
-      const idElem = document.getElementById('drawer-user-id');
-      const authBtn = document.getElementById('btn-auth-trigger');
-
-      if (user && !user.isAnonymous) {
-        if (emailElem) emailElem.textContent = user.email || '사용자 계정';
-        if (idElem) idElem.textContent = 'ID: ' + user.uid;
-        if (authBtn) authBtn.textContent = '계정 로그아웃';
-      } else {
-        if (emailElem) emailElem.textContent = '익명 게스트 접속';
-        if (idElem) idElem.textContent = user ? 'ID: ' + user.uid : '게스트';
-        if (authBtn) authBtn.textContent = '로그인';
-      }
-    }
-
-    // Subscribe to Firestore collections with Rule 1 path compliant structure
-    function subscribeFirestoreData() {
-      const user = window.state.user;
-      if (!user) return;
-
-      const userId = user.uid;
-      const notesCol = collection(db, 'artifacts', appId, 'users', userId, 'notes');
-      const iceDocRef = doc(db, 'artifacts', appId, 'users', userId, 'iceProfile', 'main');
-      const suppliesCol = collection(db, 'artifacts', appId, 'users', userId, 'supplies');
-
-      // Notes Listener
-      onSnapshot(query(notesCol), (snapshot) => {
-        const fetchedNotes = [];
-        snapshot.forEach((docSnap) => {
-          fetchedNotes.push({ id: docSnap.id, ...docSnap.data() });
-        });
-        window.state.notes = fetchedNotes;
-        renderDashboardNotes();
-        renderStats();
-      }, (err) => console.log('Notes listener:', err));
-
-      // ICE Profile Listener
-      onSnapshot(iceDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-          window.state.iceProfile = docSnap.data();
-          populateICEProfileForm();
-        }
-      }, (err) => console.log('ICE listener:', err));
-
-      // Supplies Listener
-      onSnapshot(query(suppliesCol), (snapshot) => {
-        if (!snapshot.empty) {
-          const fetchedSupplies = [];
-          snapshot.forEach((docSnap) => {
-            fetchedSupplies.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          window.state.supplies = fetchedSupplies;
-          renderSuppliesTable();
-        } else {
-          renderSuppliesTable();
-        }
-      }, (err) => console.log('Supplies listener:', err));
-    }
-
-    // Export functions to global scope for HTML event attributes
-    window.firebaseAuth = auth;
-    window.firebaseDb = db;
-    window.firebaseAppId = appId;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initAuth();
-      renderDashboardNotes();
-      renderSuppliesTable();
-      renderStats();
-    });
-  </script>
-
-  <script>
-    // System View Switching (Single Page Application Router)
-    function switchView(paneName) {
-      const panes = ['dashboard', 'write', 'ice', 'supplies', 'templates', 'stats', 'csv'];
-      
-      panes.forEach(pane => {
-        const elem = document.getElementById('pane-' + pane);
-        if (elem) {
-          if (pane === paneName) {
-            elem.classList.remove('hidden');
-          } else {
-            elem.classList.add('hidden');
-          }
-        }
-      });
-
-      // Update Toolbar visibility depending on pane
-      const toolbar = document.getElementById('global-toolbar');
-      if (toolbar) {
-        if (paneName === 'dashboard') {
-          toolbar.classList.remove('hidden');
-        } else {
-          toolbar.classList.add('hidden');
-        }
-      }
-
-      toggleDrawer(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Service Mode Switcher (Study Note Mode <-> Emergency Mode)
-    function toggleServiceMode() {
-      const badge = document.getElementById('current-mode-badge');
-      const studyGroup = document.getElementById('nav-group-study');
-      const emrGroup = document.getElementById('nav-group-emr');
-
-      if (window.state.currentMode === 'STUDY') {
-        window.state.currentMode = 'EMR';
-        badge.textContent = '보건/응급 관리 모드';
-        badge.className = 'ml-2 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 border border-red-200 dark:border-red-800';
-        
-        if (studyGroup) studyGroup.classList.add('hidden');
-        if (emrGroup) emrGroup.classList.remove('hidden');
-
-        showToast('보건 및 응급 관리 모드로 전환되었습니다.');
-      } else {
-        window.state.currentMode = 'STUDY';
-        badge.textContent = '학습 정리 모드';
-        badge.className = 'ml-2 px-2.5 py-1 text-xs font-semibold rounded-full bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300 border border-brand-200 dark:border-brand-800';
-        
-        if (studyGroup) studyGroup.classList.remove('hidden');
-        if (emrGroup) emrGroup.classList.add('hidden');
-
-        showToast('학습 정리 모드로 전환되었습니다.');
-      }
-
-      renderDashboardNotes();
-    }
-
-    // Dark Mode Switcher
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-      const isDark = document.documentElement.classList.contains('dark');
-      showToast(isDark ? '다크 모드가 적용되었습니다.' : '라이트 모드가 적용되었습니다.');
-    }
-
-    // Drawer Menu Toggle
-    function toggleDrawer(open) {
-      const drawer = document.getElementById('nav-drawer');
-      const overlay = document.getElementById('drawer-overlay');
-      
-      if (open) {
-        overlay.classList.remove('opacity-0', 'pointer-events-none');
-        drawer.classList.remove('translate-x-full');
-      } else {
-        overlay.classList.add('opacity-0', 'pointer-events-none');
-        drawer.classList.add('translate-x-full');
-      }
-    }
-
-    // Toast Popups (Emoji-free)
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      const msgElem = document.getElementById('toast-message');
-      msgElem.textContent = message;
-      
-      toast.classList.remove('opacity-0', 'pointer-events-none');
-      setTimeout(() => {
-        toast.classList.add('opacity-0', 'pointer-events-none');
-      }, 3000);
-    }
-
-    // Search and Category Filter Handler
-    function handleSearchFilter() {
-      const searchInput = document.getElementById('input-search');
-      const categorySelect = document.getElementById('select-category-filter');
-      
-      window.state.searchQuery = searchInput.value.trim().toLowerCase();
-      window.state.filterCategory = categorySelect.value;
-      
-      renderDashboardNotes();
-    }
-
-    function toggleFavoritesFilter() {
-      window.state.favoritesOnly = !window.state.favoritesOnly;
-      const btnText = document.getElementById('fav-filter-text');
-      btnText.textContent = window.state.favoritesOnly ? '전체 항목 보기' : '고정 항목만 보기';
-      renderDashboardNotes();
-    }
-
-    // Render Notes in Dashboard Grid
-    function renderDashboardNotes() {
-      const container = document.getElementById('notes-grid-container');
-      const emptyState = document.getElementById('notes-empty-state');
-      if (!container) return;
-
-      let notes = window.state.notes || [];
-
-      // Mode-based initial filtering
-      if (window.state.currentMode === 'STUDY') {
-        notes = notes.filter(n => n.category === '학습 노트' || n.category === '일반 메모');
-      } else {
-        notes = notes.filter(n => n.category === '응급 및 보건');
-      }
-
-      // Search & Category Filters
-      if (window.state.filterCategory !== 'ALL') {
-        notes = notes.filter(n => n.category === window.state.filterCategory);
-      }
-      if (window.state.searchQuery) {
-        const q = window.state.searchQuery;
-        notes = notes.filter(n => 
-          (n.title && n.title.toLowerCase().includes(q)) || 
-          (n.summary && n.summary.toLowerCase().includes(q)) ||
-          (n.details && n.details.toLowerCase().includes(q))
-        );
-      }
-      if (window.state.favoritesOnly) {
-        notes = notes.filter(n => n.favorite === true || n.favorite === 'true');
-      }
-
-      // Sort favorites first, then newest
-      notes.sort((a, b) => {
-        if ((b.favorite === true || b.favorite === 'true') - (a.favorite === true || a.favorite === 'true')) return 1;
-        return (b.createdAt || 0) - (a.createdAt || 0);
-      });
-
-      // Update Quick Overview Counter Numbers
-      document.getElementById('stat-total-count').textContent = window.state.notes.length;
-      document.getElementById('stat-fav-count').textContent = window.state.notes.filter(n => n.favorite === true || n.favorite === 'true').length;
-      document.getElementById('stat-file-count').textContent = window.state.notes.filter(n => n.fileData).length;
-
-      container.innerHTML = '';
-
-      if (notes.length === 0) {
-        emptyState.classList.remove('hidden');
-        return;
-      } else {
-        emptyState.classList.add('hidden');
-      }
-
-      notes.forEach(note => {
-        const isFav = note.favorite === true || note.favorite === 'true';
-        const card = document.createElement('div');
-        card.className = 'custom-card p-5 rounded-xl border hover:border-brand-500 hover:shadow-md transition flex flex-col justify-between cursor-pointer space-y-3';
-        card.onclick = () => openDetailModal(note);
-
-        card.innerHTML = `
-          <div class="space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded ${
-                note.category === '응급 및 보건' ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' : 'bg-brand-100 text-brand-700 dark:bg-brand-900 dark:text-brand-300'
-              }">${escapeHtml(note.category)}</span>
-              ${isFav ? '<span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">고정됨</span>' : ''}
-            </div>
-
-            <h4 class="font-bold text-base line-clamp-1">${escapeHtml(note.title)}</h4>
-            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">${escapeHtml(note.summary || note.details || '내용 없음')}</p>
+      <!-- Top Search & Toolbar -->
+      <section id="global-toolbar" class="mb-6 toss-card p-4 rounded-3xl space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
+        <div class="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
+          
+          <!-- Search Box -->
+          <div class="relative w-full sm:w-72">
+            <input type="text" id="input-search" oninput="handleSearchFilter()" placeholder="검색어를 입력하세요" class="w-full pl-10 pr-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+            <svg class="w-4 h-4 text-toss-subtext absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <span>${note.dateStr || '최근 작성'}</span>
-            ${note.fileData ? '<span class="font-bold text-brand-600 dark:text-brand-400">[첨부파일 포함]</span>' : ''}
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
+          <!-- Category Select -->
+          <select id="select-category-filter" onchange="handleSearchFilter()" class="w-full sm:w-44 px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+            <option value="ALL">전체 카테고리</option>
+            <option value="학습 노트">학습 노트</option>
+            <option value="응급 및 보건">응급 및 보건</option>
+            <option value="일반 메모">일반 메모</option>
+          </select>
 
-    // Open Pane for Writing a new note or prefilling category
-    function openWritePane(defaultCategory) {
-      document.getElementById('form-record').reset();
-      document.getElementById('reg-id').value = '';
-      document.getElementById('write-form-title').textContent = '새 기록 작성';
-      document.getElementById('file-attached-info').classList.add('hidden');
+          <!-- Favorites Toggle -->
+          <button id="btn-toggle-favorites" onclick="toggleFavoritesFilter()" class="toss-button w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-2xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition flex items-center justify-center gap-1.5">
+            <span id="fav-filter-text">고정 항목만 보기</span>
+          </button>
 
-      if (defaultCategory) {
-        const catSelect = document.getElementById('reg-category');
-        if (defaultCategory === '응급') catSelect.value = '응급 및 보건';
-        else catSelect.value = '학습 노트';
-      }
+        </div>
 
-      checkDraftAndPrompt();
-      switchView('write');
-    }
+        <!-- Create Button -->
+        <button onclick="openWritePane()" class="toss-button w-full sm:w-auto px-5 py-3 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm flex items-center justify-center gap-1">
+          <span>+ 새 기록 작성</span>
+        </button>
+      </section>
 
-    // Auto save draft to LocalStorage
-    function triggerAutoSave() {
-      const title = document.getElementById('reg-title').value;
-      const details = document.getElementById('reg-details').value;
-      
-      clearTimeout(window.state.autoSaveTimer);
-      window.state.autoSaveTimer = setTimeout(() => {
-        if (title || details) {
-          localStorage.setItem('app_record_draft', JSON.stringify({ title, details }));
-          document.getElementById('autosave-badge').textContent = '임시 저장됨';
-        }
-      }, 1000);
-    }
-
-    function checkDraftAndPrompt() {
-      const draftStr = localStorage.getItem('app_record_draft');
-      if (draftStr) {
-        try {
-          const draft = JSON.parse(draftStr);
-          if (draft.title || draft.details) {
-            document.getElementById('reg-title').value = draft.title || '';
-            document.getElementById('reg-details').value = draft.details || '';
-            document.getElementById('autosave-badge').textContent = '복구된 작성중 문서';
-          }
-        } catch(e) {}
-      }
-    }
-
-    // Save or Update Record (with File Attachment conversion)
-    async function handleSaveRecord(e) {
-      e.preventDefault();
-      
-      const id = document.getElementById('reg-id').value;
-      const category = document.getElementById('reg-category').value;
-      const favorite = document.getElementById('reg-favorite').value === 'true';
-      const title = document.getElementById('reg-title').value;
-      const summary = document.getElementById('reg-summary').value;
-      const details = document.getElementById('reg-details').value;
-      const fileInput = document.getElementById('reg-file');
-
-      let fileData = null;
-
-      // Handle Attached File converting to Base64 data URL
-      if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0];
-        fileData = await convertFileToBase64(file);
-      }
-
-      const recordObj = {
-        category,
-        favorite,
-        title,
-        summary,
-        details,
-        dateStr: new Date().toLocaleDateString('ko-KR'),
-        createdAt: Date.now()
-      };
-
-      if (fileData) {
-        recordObj.fileData = fileData;
-      }
-
-      // Save to Firestore if authenticated, or update local memory fallback
-      const user = window.state.user;
-      if (user && window.firebaseDb) {
-        try {
-          const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-          const notesCol = collection(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes');
-
-          if (id) {
-            await updateDoc(doc(notesCol, id), recordObj);
-          } else {
-            await addDoc(notesCol, recordObj);
-          }
-        } catch(err) {
-          console.error('Firestore save error:', err);
-          saveToLocalMemory(id, recordObj);
-        }
-      } else {
-        saveToLocalMemory(id, recordObj);
-      }
-
-      localStorage.removeItem('app_record_draft');
-      showToast('성공적으로 저장되었습니다.');
-      switchView('dashboard');
-    }
-
-    function saveToLocalMemory(id, recordObj) {
-      if (id) {
-        const idx = window.state.notes.findIndex(n => n.id === id);
-        if (idx !== -1) window.state.notes[idx] = { id, ...recordObj };
-      } else {
-        window.state.notes.unshift({ id: 'local_' + Date.now(), ...recordObj });
-      }
-      renderDashboardNotes();
-      renderStats();
-    }
-
-    // Helper: Convert File object to Base64 String
-    function convertFileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve({
-          name: file.name,
-          url: reader.result
-        });
-        reader.onerror = error => reject(error);
-      });
-    }
-
-    // Emergency Profile Handling
-    async function handleSaveICEProfile(e) {
-      e.preventDefault();
-      const profile = {
-        name: document.getElementById('ice-name').value,
-        idNumber: document.getElementById('ice-id').value,
-        bloodType: document.getElementById('ice-blood').value,
-        contact: document.getElementById('ice-contact').value,
-        allergies: document.getElementById('ice-allergy').value,
-        diseases: document.getElementById('ice-disease').value
-      };
-
-      window.state.iceProfile = profile;
-
-      const user = window.state.user;
-      if (user && window.firebaseDb) {
-        try {
-          const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-          const iceDocRef = doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'iceProfile', 'main');
-          await setDoc(iceDocRef, profile);
-        } catch(err) {
-          console.error(err);
-        }
-      }
-
-      showToast('응급 프로필이 최신 정보로 업데이트되었습니다.');
-    }
-
-    function populateICEProfileForm() {
-      const p = window.state.iceProfile;
-      if (!p) return;
-      document.getElementById('ice-name').value = p.name || '';
-      document.getElementById('ice-id').value = p.idNumber || '';
-      document.getElementById('ice-blood').value = p.bloodType || '';
-      document.getElementById('ice-contact').value = p.contact || '';
-      document.getElementById('ice-allergy').value = p.allergies || '';
-      document.getElementById('ice-disease').value = p.diseases || '';
-    }
-
-    // Modal Details Logic
-    function openDetailModal(note) {
-      window.state.activeDetailItem = note;
-      document.getElementById('detail-modal-category').textContent = note.category;
-      document.getElementById('detail-modal-title').textContent = note.title;
-      document.getElementById('detail-modal-date').textContent = note.dateStr || '작성일 정보 없음';
-      document.getElementById('detail-modal-summary').textContent = note.summary || '요약 내용 없음';
-      document.getElementById('detail-modal-details').textContent = note.details || '상세 메모 없음';
-
-      const fileZone = document.getElementById('detail-modal-file-zone');
-      const fileLink = document.getElementById('detail-modal-file-link');
-
-      if (note.fileData) {
-        fileZone.classList.remove('hidden');
-        fileLink.textContent = note.fileData.name + ' (클릭하여 열기)';
-        fileLink.href = note.fileData.url;
-      } else {
-        fileZone.classList.add('hidden');
-      }
-
-      const modal = document.getElementById('detail-modal');
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-    }
-
-    function closeDetailModal() {
-      const modal = document.getElementById('detail-modal');
-      modal.classList.add('opacity-0', 'pointer-events-none');
-    }
-
-    async function handleDeleteCurrentDetail() {
-      const item = window.state.activeDetailItem;
-      if (!item) return;
-
-      const user = window.state.user;
-      if (user && window.firebaseDb && !item.id.startsWith('local_')) {
-        try {
-          const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-          await deleteDoc(doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes', item.id));
-        } catch(err) {
-          console.error(err);
-        }
-      }
-
-      window.state.notes = window.state.notes.filter(n => n.id !== item.id);
-      showToast('삭제되었습니다.');
-      closeDetailModal();
-      renderDashboardNotes();
-      renderStats();
-    }
-
-    function handleEditCurrentDetail() {
-      const item = window.state.activeDetailItem;
-      if (!item) return;
-
-      closeDetailModal();
-      openWritePane();
-
-      document.getElementById('reg-id').value = item.id;
-      document.getElementById('reg-category').value = item.category;
-      document.getElementById('reg-favorite').value = item.favorite ? 'true' : 'false';
-      document.getElementById('reg-title').value = item.title;
-      document.getElementById('reg-summary').value = item.summary || '';
-      document.getElementById('reg-details').value = item.details || '';
-      document.getElementById('write-form-title').textContent = '기록 내용 수정';
-
-      if (item.fileData) {
-        const fileInfo = document.getElementById('file-attached-info');
-        fileInfo.textContent = '기존 첨부파일: ' + item.fileData.name;
-        fileInfo.classList.remove('hidden');
-      }
-    }
-
-    // Supply Management Functions
-    function renderSuppliesTable() {
-      const tbody = document.getElementById('supplies-table-body');
-      const alertBox = document.getElementById('supplies-low-alert');
-      if (!tbody) return;
-
-      tbody.innerHTML = '';
-      let hasLowStock = false;
-
-      window.state.supplies.forEach(item => {
-        if (item.qty <= item.minQty) hasLowStock = true;
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition';
-
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-semibold">${escapeHtml(item.name)}</td>
-          <td class="py-3 px-3 text-slate-500">${escapeHtml(item.category)}</td>
-          <td class="py-3 px-3">
-            <span class="font-bold ${item.qty <= item.minQty ? 'text-red-600 dark:text-red-400' : ''}">${item.qty}개</span>
-          </td>
-          <td class="py-3 px-3 text-slate-400">${item.minQty}개</td>
-          <td class="py-3 px-3 text-right">
-            <div class="flex items-center justify-end gap-1">
-              <button onclick="adjustSupplyQty('${item.id}', -1)" class="px-2 py-1 text-xs font-bold rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 transition">-1</button>
-              <button onclick="adjustSupplyQty('${item.id}', 5)" class="px-2 py-1 text-xs font-bold rounded bg-brand-100 text-brand-700 dark:bg-brand-950 dark:text-brand-300 hover:bg-brand-200 transition">+5</button>
+      <!-- VIEW 1: Dashboard -->
+      <section id="pane-dashboard" class="view-pane space-y-6">
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-toss-subtext">전체 기록</div>
+              <div id="stat-total-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
             </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+            <div class="w-12 h-12 rounded-2xl bg-toss-lightBlue text-toss-blue font-bold flex items-center justify-center text-sm">건</div>
+          </div>
 
-      if (hasLowStock && alertBox) {
-        alertBox.classList.remove('hidden');
-      } else if (alertBox) {
-        alertBox.classList.add('hidden');
-      }
-    }
-
-    function adjustSupplyQty(id, amount) {
-      const item = window.state.supplies.find(s => s.id === id);
-      if (item) {
-        item.qty = Math.max(0, item.qty + amount);
-        renderSuppliesTable();
-        showToast(item.name + ' 수량이 조정되었습니다.');
-      }
-    }
-
-    function openAddSupplyModal() {
-      const modal = document.getElementById('supply-modal');
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-    }
-
-    function closeAddSupplyModal() {
-      const modal = document.getElementById('supply-modal');
-      modal.classList.add('opacity-0', 'pointer-events-none');
-    }
-
-    function handleAddSupplySubmit(e) {
-      e.preventDefault();
-      const name = document.getElementById('supp-name').value;
-      const category = document.getElementById('supp-cat').value;
-      const qty = parseInt(document.getElementById('supp-qty').value, 10);
-      const minQty = parseInt(document.getElementById('supp-min').value, 10);
-
-      window.state.supplies.push({
-        id: 'supp_' + Date.now(),
-        name,
-        category,
-        qty,
-        minQty
-      });
-
-      closeAddSupplyModal();
-      renderSuppliesTable();
-      showToast('신규 물품이 추가되었습니다.');
-    }
-
-    // Template Applying
-    function applyTemplate(type) {
-      openWritePane();
-      const titleInput = document.getElementById('reg-title');
-      const detailsInput = document.getElementById('reg-details');
-
-      if (type === 'cornell') {
-        titleInput.value = '학습 코넬 정리 - [주제]';
-        detailsInput.value = `[핵심 키워드]\n- 주요 용어 1:\n- 주요 용어 2:\n\n[상세 내용 노트]\n1. 세부 학습 주제\n2. 주요 원리 및 규칙\n\n[요약 및 질문]\n- 질문사항:`;
-      } else if (type === 'incident') {
-        titleInput.value = '응급 조치 및 경과 일지';
-        document.getElementById('reg-category').value = '응급 및 보건';
-        detailsInput.value = `[발생 상황]\n- 발생 시각:\n- 발생 장소:\n\n[증상 및 상태 요약]\n- 주요 경과:\n\n[실시된 조치 내용]\n- 1차 조치:\n- 후속 보호자/의료진 전달사항:`;
-      } else if (type === 'meeting') {
-        titleInput.value = '서면 회의 요약 노트';
-        detailsInput.value = `[회의 안건]\n- 주요 결정 사항 1:\n\n[실행 세부 계획]\n- 담당자 및 기한:`;
-      }
-    }
-
-    // Render Statistics Charts
-    function renderStats() {
-      const notes = window.state.notes || [];
-      const total = notes.length || 1;
-
-      const studyCount = notes.filter(n => n.category === '학습 노트').length;
-      const emrCount = notes.filter(n => n.category === '응급 및 보건').length;
-      const generalCount = notes.filter(n => n.category === '일반 메모').length;
-
-      document.getElementById('stat-bar-study-val').textContent = `${studyCount}건 (${Math.round((studyCount/total)*100)}%)`;
-      document.getElementById('stat-bar-study').style.width = `${Math.round((studyCount/total)*100)}%`;
-
-      document.getElementById('stat-bar-emr-val').textContent = `${emrCount}건 (${Math.round((emrCount/total)*100)}%)`;
-      document.getElementById('stat-bar-emr').style.width = `${Math.round((emrCount/total)*100)}%`;
-
-      document.getElementById('stat-bar-general-val').textContent = `${generalCount}건 (${Math.round((generalCount/total)*100)}%)`;
-      document.getElementById('stat-bar-general').style.width = `${Math.round((generalCount/total)*100)}%`;
-
-      document.getElementById('stat-metrics-total').textContent = notes.length + '건';
-      document.getElementById('stat-metrics-files').textContent = notes.filter(n => n.fileData).length + '건';
-      document.getElementById('stat-metrics-favs').textContent = notes.filter(n => n.favorite).length + '건';
-    }
-
-    // CSV Engine: Export
-    function exportToCSV() {
-      const notes = window.state.notes || [];
-      if (notes.length === 0) {
-        showToast('내보낼 데이터가 없습니다.');
-        return;
-      }
-
-      let csvContent = "\uFEFF카테고리,제목,요약,작성일\n";
-      notes.forEach(n => {
-        const cat = `"${(n.category || '').replace(/"/g, '""')}"`;
-        const title = `"${(n.title || '').replace(/"/g, '""')}"`;
-        const summary = `"${(n.summary || '').replace(/"/g, '""')}"`;
-        const date = `"${n.dateStr || ''}"`;
-        csvContent += `${cat},${title},${summary},${date}\n`;
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `system_export_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('CSV 백업 파일이 다운로드되었습니다.');
-    }
-
-    // CSV Engine: Import
-    function importFromCSV() {
-      const fileInput = document.getElementById('csv-file-input');
-      if (!fileInput.files || !fileInput.files[0]) {
-        showToast('가져올 CSV 파일을 선택하세요.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const text = e.target.result;
-        const lines = text.split('\n');
-        let addedCount = 0;
-
-        for (let i = 1; i < lines.length; i++) {
-          if (!lines[i].trim()) continue;
-          const cols = lines[i].split(',');
-          if (cols.length >= 2) {
-            const cat = cols[0].replace(/"/g, '').trim() || '일반 메모';
-            const title = cols[1].replace(/"/g, '').trim() || '가져온 항목';
-            const summary = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
-
-            window.state.notes.push({
-              id: 'csv_' + Date.now() + '_' + i,
-              category: cat,
-              title: title,
-              summary: summary,
-              details: summary,
-              dateStr: new Date().toLocaleDateString('ko-KR'),
-              createdAt: Date.now()
-            });
-            addedCount++;
-          }
-        }
-
-        renderDashboardNotes();
-        renderStats();
-        showToast(`${addedCount}건의 데이터가 성공적으로 대량 연동되었습니다.`);
-      };
-      reader.readAsText(fileInput.files[0], 'UTF-8');
-    }
-
-    // Report Printable Area Generation
-    function triggerPrintReport() {
-      const printContainer = document.getElementById('printable-area');
-      const notes = window.state.notes || [];
-
-      let html = `
-        <div style="padding: 20px; font-family: sans-serif;">
-          <h1 style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">통합 기록 시스템 공식 보고서</h1>
-          <p style="font-size: 12px; color: #666; margin-bottom: 20px;">출력일시: ${new Date().toLocaleString('ko-KR')}</p>
-          <hr style="border: 1px solid #ccc; margin-bottom: 20px;" />
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-            <thead>
-              <tr style="background: #f0f0f0;">
-                <th style="border: 1px solid #ddd; padding: 8px;">분류</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">제목</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">주요 요약</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">작성일</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      notes.forEach(n => {
-        html += `
-          <tr>
-            <td style="border: 1px solid #ddd; padding: 8px;">${escapeHtml(n.category)}</td>
-            <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">${escapeHtml(n.title)}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">${escapeHtml(n.summary || '')}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">${n.dateStr || ''}</td>
-          </tr>
-        `;
-      });
-
-      html += `</tbody></table></div>`;
-      printContainer.innerHTML = html;
-      window.print();
-    }
-
-    // Authentication Modal Controls
-    function openAuthModal() {
-      const modal = document.getElementById('auth-modal');
-      modal.classList.remove('opacity-0', 'pointer-events-none');
-    }
-
-    function closeAuthModal() {
-      const modal = document.getElementById('auth-modal');
-      modal.classList.add('opacity-0', 'pointer-events-none');
-    }
-
-    function toggleAuthMode() {
-      window.state.isAuthSignUp = !window.state.isAuthSignUp;
-      const title = document.getElementById('auth-modal-title');
-      const submitBtn = document.getElementById('btn-auth-submit');
-      const toggleBtn = document.getElementById('btn-auth-toggle');
-
-      if (window.state.isAuthSignUp) {
-        title.textContent = '신규 계정 회원가입';
-        submitBtn.textContent = '가입하기';
-        toggleBtn.textContent = '기존 계정 로그인으로 전환';
-      } else {
-        title.textContent = '계정 로그인';
-        submitBtn.textContent = '로그인';
-        toggleBtn.textContent = '신규 회원가입으로 전환';
-      }
-    }
-
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const email = document.getElementById('auth-email').value;
-      const password = document.getElementById('auth-password').value;
-
-      try {
-        if (window.state.isAuthSignUp) {
-          const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-          await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
-          showToast('성공적으로 회원가입되었습니다.');
-        } else {
-          const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-          await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-          showToast('로그인되었습니다.');
-        }
-        closeAuthModal();
-      } catch(err) {
-        alert('인증 오류가 발생했습니다: ' + err.message);
-      }
-    }
-
-    async function handlePasswordReset() {
-      const email = document.getElementById('auth-email').value;
-      if (!email) {
-        alert('이메일 주소를 입력한 후 누르세요.');
-        return;
-      }
-      try {
-        const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-        await sendPasswordResetEmail(window.firebaseAuth, email);
-        showToast('비밀번호 재설정 이메일이 발송되었습니다.');
-      } catch(err) {
-        alert('오류: ' + err.message);
-      }
-    }
-
-    async function handleLogout() {
-      try {
-        const { signOut } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-        await signOut(window.firebaseAuth);
-        showToast('로그아웃 되었습니다.');
-        toggleDrawer(false);
-      } catch(err) {
-        console.error(err);
-      }
-    }
-
-    // Utility: XSS String Sanitizer
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-  </script>
-</body>
-</html>
+          <div class="toss-card p-6 rounded-
