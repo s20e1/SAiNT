@@ -115,4 +115,1441 @@
 
       <!-- Google Login Button -->
       <button onclick="handleGoogleAuth()" class="toss-button w-full py-3.5 px-4 rounded-2xl bg-white dark:bg-[#2c2c2e] border border-toss-border dark:border-toss-darkBorder text-toss-text dark:text-white font-bold text-sm flex items-center justify-center gap-3 shadow-sm hover:bg-gray-50 dark:hover:bg-[#3a3a3c] transition">
-        <svg class="w-5 h-
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Google 계정으로 계속하기</span>
+      </button>
+
+      <div class="relative flex py-1 items-center">
+        <div class="flex-grow border-t border-toss-border dark:border-toss-darkBorder"></div>
+        <span class="flex-shrink mx-4 text-xs font-semibold text-toss-subtext">또는 이메일 로그인</span>
+        <div class="flex-grow border-t border-toss-border dark:border-toss-darkBorder"></div>
+      </div>
+
+      <!-- Email/Password Login Form -->
+      <form id="form-auth" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">이메일</label>
+          <input type="email" id="auth-email" required placeholder="example@toss.im" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">비밀번호</label>
+          <input type="password" id="auth-password" required placeholder="비밀번호를 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+        </div>
+
+        <button type="submit" id="btn-auth-submit" class="toss-button w-full py-4 text-base font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm mt-2">
+          로그인하기
+        </button>
+      </form>
+
+      <div class="flex items-center justify-between text-xs text-toss-subtext pt-1 px-1">
+        <button onclick="toggleAuthMode()" id="btn-auth-toggle" class="font-semibold text-toss-blue hover:underline">
+          신규 회원가입
+        </button>
+        <button onclick="handlePasswordReset()" class="hover:underline">
+          비밀번호 재설정
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Authenticated App Container -->
+  <div id="main-app" class="min-h-screen flex flex-col hidden">
+
+    <!-- Top Application Header -->
+    <header class="sticky top-0 z-40 w-full toss-card border-b backdrop-blur-md bg-opacity-80 dark:bg-opacity-80 transition-colors">
+      <div class="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <div onclick="switchView('dashboard')" class="cursor-pointer flex items-center gap-2.5 group">
+            <div class="w-8 h-8 rounded-xl bg-toss-blue flex items-center justify-center text-white font-bold text-base shadow-sm">
+              P
+            </div>
+            <span class="font-bold text-lg tracking-tight">기록 플랫폼</span>
+          </div>
+
+          <span id="current-mode-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightBlue text-toss-blue border border-toss-blue/10">
+            학습 정리 모드
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="toggleServiceMode()" class="toss-button px-3.5 py-2 text-xs font-bold rounded-xl bg-toss-bg dark:bg-toss-darkCard text-toss-text dark:text-white hover:bg-toss-border/60 transition flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-toss-subtext" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+            <span class="hidden sm:inline">모드 전환</span>
+          </button>
+
+          <button onclick="toggleDarkMode()" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition text-toss-text dark:text-white" title="테마 변경">
+            <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </button>
+
+          <button onclick="toggleDrawer(true)" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition">
+            <svg class="w-5 h-5 text-toss-text dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Side Navigation Drawer -->
+    <div id="drawer-overlay" class="drawer-overlay fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity" onclick="toggleDrawer(false)"></div>
+    
+    <aside id="nav-drawer" class="drawer-content fixed top-0 right-0 z-50 w-80 h-full toss-card border-l shadow-2xl translate-x-full flex flex-col transition-transform duration-300">
+      <div class="p-6 border-b border-toss-border dark:border-toss-darkBorder flex items-center justify-between">
+        <span class="font-bold text-lg">메뉴</span>
+        <button onclick="toggleDrawer(false)" class="p-1.5 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-5 flex-1 overflow-y-auto space-y-6">
+        
+        <!-- User Account Info -->
+        <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg border border-toss-border dark:border-toss-darkBorder space-y-1">
+          <div class="text-xs font-semibold text-toss-subtext">로그인된 계정</div>
+          <div id="drawer-user-email" class="font-bold text-sm truncate text-toss-text dark:text-white">사용자 계정</div>
+          <div id="drawer-user-id" class="text-xs text-toss-subtext truncate font-mono pt-0.5">ID: -</div>
+        </div>
+
+        <!-- Navigation Links -->
+        <div id="nav-group-study" class="space-y-1">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">학습 메뉴</div>
+          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>기록 목록</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightBlue text-toss-blue font-bold">메인</span>
+          </button>
+          <button onclick="openWritePane('학습')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            새 학습 노트 작성
+          </button>
+          <button onclick="switchView('templates')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            작성 템플릿
+          </button>
+        </div>
+
+        <div id="nav-group-emr" class="space-y-1 hidden">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">보건/응급 메뉴</div>
+          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>응급 기록 목록</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">메인</span>
+          </button>
+          <button onclick="openWritePane('응급')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            새 응급 기록 작성
+          </button>
+          <button onclick="switchView('ice')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            응급 참고 프로필 설정
+          </button>
+        </div>
+
+        <div class="space-y-1 pt-4 border-t border-toss-border dark:border-toss-darkBorder">
+          <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">유틸리티</div>
+          <button onclick="switchView('supplies')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            물품 수급 관리
+          </button>
+          <button onclick="switchView('stats')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            통계 및 분석
+          </button>
+          <button onclick="switchView('csv')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            CSV 대량 연동
+          </button>
+          <button onclick="triggerPrintReport()" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            보고서 인쇄
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Drawer Logout -->
+      <div class="p-5 border-t border-toss-border dark:border-toss-darkBorder">
+        <button onclick="handleLogout()" class="toss-button w-full py-3.5 px-4 rounded-2xl bg-toss-lightRed hover:bg-red-100 dark:bg-toss-red/10 text-toss-red font-bold text-sm transition">
+          로그아웃
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
+
+      <!-- Top Toolbar -->
+      <section id="global-toolbar" class="mb-6 toss-card p-4 rounded-3xl space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
+        <div class="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
+          <div class="relative w-full sm:w-72">
+            <input type="text" id="input-search" oninput="handleSearchFilter()" placeholder="검색어를 입력하세요" class="w-full pl-10 pr-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+            <svg class="w-4 h-4 text-toss-subtext absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </div>
+
+          <select id="select-category-filter" onchange="handleSearchFilter()" class="w-full sm:w-44 px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+            <option value="ALL">전체 카테고리</option>
+            <option value="학습 노트">학습 노트</option>
+            <option value="응급 및 보건">응급 및 보건</option>
+            <option value="일반 메모">일반 메모</option>
+          </select>
+
+          <button id="btn-toggle-favorites" onclick="toggleFavoritesFilter()" class="toss-button w-full sm:w-auto px-4 py-3 text-sm font-semibold rounded-2xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition flex items-center justify-center gap-1.5">
+            <span id="fav-filter-text">고정 항목만 보기</span>
+          </button>
+        </div>
+
+        <button onclick="openWritePane()" class="toss-button w-full sm:w-auto px-5 py-3 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm flex items-center justify-center gap-1">
+          <span>+ 새 기록 작성</span>
+        </button>
+      </section>
+
+      <!-- VIEW 1: Dashboard -->
+      <section id="pane-dashboard" class="view-pane space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-toss-subtext">전체 기록</div>
+              <div id="stat-total-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-toss-lightBlue text-toss-blue font-bold flex items-center justify-center text-sm">건</div>
+          </div>
+
+          <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-toss-subtext">중요 고정</div>
+              <div id="stat-fav-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 font-bold flex items-center justify-center text-sm">고정</div>
+          </div>
+
+          <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-toss-subtext">첨부 파일</div>
+              <div id="stat-file-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 font-bold flex items-center justify-center text-sm">파일</div>
+          </div>
+        </div>
+
+        <div class="toss-card p-6 sm:p-8 rounded-3xl">
+          <div class="flex items-center justify-between mb-6">
+            <h3 id="dashboard-list-title" class="text-xl font-bold tracking-tight">저장된 기록</h3>
+            <span class="text-xs font-semibold text-toss-subtext">최신순</span>
+          </div>
+
+          <div id="notes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Dynamic notes -->
+          </div>
+
+          <div id="notes-empty-state" class="py-16 text-center text-toss-subtext hidden space-y-2">
+            <p class="text-base font-bold text-toss-text dark:text-white">등록된 기록이 없습니다.</p>
+            <p class="text-xs">상단의 '+ 새 기록 작성' 버튼을 눌러 첫 기록을 추가해보세요.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: Write/Edit Form -->
+      <section id="pane-write" class="view-pane hidden max-w-2xl mx-auto">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div class="flex items-center justify-between border-b border-toss-border dark:border-toss-darkBorder pb-5">
+            <div>
+              <h3 id="write-form-title" class="text-2xl font-bold tracking-tight">새 기록 작성</h3>
+              <p class="text-xs text-toss-subtext mt-1">학습 노트 및 응급 보건 기록을 작성합니다.</p>
+            </div>
+            <span id="autosave-badge" class="text-xs px-3 py-1 rounded-full bg-toss-bg dark:bg-toss-darkBg text-toss-subtext font-semibold">
+              임시 저장 비활성
+            </span>
+          </div>
+
+          <form id="form-record" onsubmit="handleSaveRecord(event)" class="space-y-5">
+            <input type="hidden" id="reg-id" value="">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">카테고리</label>
+                <select id="reg-category" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+                  <option value="학습 노트">학습 노트</option>
+                  <option value="응급 및 보건">응급 및 보건</option>
+                  <option value="일반 메모">일반 메모</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상단 고정</label>
+                <select id="reg-favorite" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+                  <option value="false">일반 항목</option>
+                  <option value="true">중요 항목 (상단 고정)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">제목</label>
+              <input type="text" id="reg-title" required oninput="triggerAutoSave()" placeholder="제목을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">핵심 요약</label>
+              <textarea id="reg-summary" rows="2" oninput="triggerAutoSave()" placeholder="주요 내용 요약" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상세 내용</label>
+              <textarea id="reg-details" rows="6" oninput="triggerAutoSave()" placeholder="세부 내용을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-toss-bg dark:bg-toss-darkBg space-y-2">
+              <label class="block text-xs font-bold text-toss-subtext">
+                첨부 파일 (PDF, 이미지 지원)
+              </label>
+              <input type="file" id="reg-file" accept=".pdf, .key, .goodnotes, image/*" class="block w-full text-xs text-toss-subtext file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-toss-lightBlue file:text-toss-blue hover:file:bg-blue-100 cursor-pointer">
+              <div id="file-attached-info" class="text-xs text-emerald-600 font-bold hidden pt-1"></div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4">
+              <button type="button" onclick="switchView('dashboard')" class="toss-button px-6 py-3.5 text-sm font-bold rounded-2xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition">
+                취소
+              </button>
+              <button type="submit" class="toss-button px-7 py-3.5 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm">
+                저장하기
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- VIEW 3: ICE Profile -->
+      <section id="pane-ice" class="view-pane hidden max-w-2xl mx-auto">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div class="border-b border-toss-border dark:border-toss-darkBorder pb-5">
+            <span class="px-3 py-1 text-xs font-bold rounded-full bg-toss-lightRed text-toss-red">응급 전용</span>
+            <h3 class="text-2xl font-bold tracking-tight text-toss-red dark:text-toss-red mt-2">응급 참고 프로필 설정</h3>
+            <p class="text-xs text-toss-subtext mt-1">응급 상황 시 전달할 주요 의료 정보를 등록합니다.</p>
+          </div>
+
+          <form id="form-ice-profile" onsubmit="handleSaveICEProfile(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">성명</label>
+                <input type="text" id="ice-name" required placeholder="홍길동" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">고유 식별 ID</label>
+                <input type="text" id="ice-id" placeholder="M-2026-001" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">혈액형</label>
+                <input type="text" id="ice-blood" placeholder="RH+ A형" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">비상 연락처</label>
+                <input type="text" id="ice-contact" placeholder="010-0000-0000" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">알레르기 정보</label>
+              <input type="text" id="ice-allergy" placeholder="페니실린 알레르기 등" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">기저질환 및 주요 전달사항</label>
+              <textarea id="ice-disease" rows="3" placeholder="천식 복용 약물 있음 등" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition resize-y"></textarea>
+            </div>
+
+            <div class="pt-4 flex justify-end">
+              <button type="submit" class="toss-button w-full sm:w-auto px-7 py-3.5 text-sm font-bold rounded-2xl bg-toss-red text-white hover:bg-red-600 transition shadow-sm">
+                응급 프로필 업데이트
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- VIEW 4: Item Supply Inventory -->
+      <section id="pane-supplies" class="view-pane hidden space-y-6">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-toss-border dark:border-toss-darkBorder pb-5">
+            <div>
+              <h3 class="text-2xl font-bold tracking-tight">물품 수급 관리</h3>
+              <p class="text-xs text-toss-subtext mt-1">보건 및 학습 재고를 실시간으로 관리합니다.</p>
+            </div>
+            <button onclick="openAddSupplyModal()" class="toss-button px-5 py-3 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm">
+              + 새 물품 등록
+            </button>
+          </div>
+
+          <div id="supplies-low-alert" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 text-amber-800 dark:text-amber-300 text-xs font-bold hidden">
+            수량이 부족한 물품이 있습니다. 재고를 보충해주세요.
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-toss-border dark:border-toss-darkBorder text-xs font-bold text-toss-subtext">
+                  <th class="py-3 px-4">품목명</th>
+                  <th class="py-3 px-4">분류</th>
+                  <th class="py-3 px-4">현재 재고</th>
+                  <th class="py-3 px-4">최소 필요 수량</th>
+                  <th class="py-3 px-4 text-right">수량 변경</th>
+                </tr>
+              </thead>
+              <tbody id="supplies-table-body" class="divide-y divide-toss-border dark:divide-toss-darkBorder">
+                <!-- Dynamic supplies -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: Templates -->
+      <section id="pane-templates" class="view-pane hidden space-y-6">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div>
+            <h3 class="text-2xl font-bold tracking-tight">작성 템플릿</h3>
+            <p class="text-xs text-toss-subtext mt-1">서식을 선택해 빠르게 작성을 시작해보세요.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div onclick="applyTemplate('cornell')" class="toss-card p-6 rounded-3xl hover:border-toss-blue cursor-pointer transition space-y-3">
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-toss-lightBlue text-toss-blue">학습용</span>
+              <h4 class="font-bold text-lg">코넬 노트 서식</h4>
+              <p class="text-xs text-toss-subtext leading-relaxed">키워드, 주요 요약, 질문 구조화 서식</p>
+            </div>
+
+            <div onclick="applyTemplate('incident')" class="toss-card p-6 rounded-3xl hover:border-toss-red cursor-pointer transition space-y-3">
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-toss-lightRed text-toss-red">응급용</span>
+              <h4 class="font-bold text-lg">응급 조치 일지</h4>
+              <p class="text-xs text-toss-subtext leading-relaxed">발생 시각, 장소, 경과 및 조치 서식</p>
+            </div>
+
+            <div onclick="applyTemplate('meeting')" class="toss-card p-6 rounded-3xl hover:border-toss-subtext cursor-pointer transition space-y-3">
+              <span class="text-xs font-bold px-3 py-1 rounded-full bg-toss-bg dark:bg-toss-darkBg text-toss-subtext">일반용</span>
+              <h4 class="font-bold text-lg">회의 요약 서식</h4>
+              <p class="text-xs text-toss-subtext leading-relaxed">안건, 결정 사항, 실행 계획 서식</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: Statistics -->
+      <section id="pane-stats" class="view-pane hidden space-y-6">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div>
+            <h3 class="text-2xl font-bold tracking-tight">통계 분석</h3>
+            <p class="text-xs text-toss-subtext mt-1">저장된 기록 현황을 확인합니다.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg space-y-4">
+              <h4 class="font-bold text-sm">카테고리별 비중</h4>
+              
+              <div class="space-y-3">
+                <div>
+                  <div class="flex justify-between text-xs font-bold mb-1.5">
+                    <span>학습 노트</span>
+                    <span id="stat-bar-study-val">0건 (0%)</span>
+                  </div>
+                  <div class="w-full h-3 rounded-full bg-toss-border dark:bg-toss-darkBorder overflow-hidden">
+                    <div id="stat-bar-study" class="h-full bg-toss-blue transition-all duration-500" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-bold mb-1.5">
+                    <span>응급 및 보건</span>
+                    <span id="stat-bar-emr-val">0건 (0%)</span>
+                  </div>
+                  <div class="w-full h-3 rounded-full bg-toss-border dark:bg-toss-darkBorder overflow-hidden">
+                    <div id="stat-bar-emr" class="h-full bg-toss-red transition-all duration-500" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs font-bold mb-1.5">
+                    <span>일반 메모</span>
+                    <span id="stat-bar-general-val">0건 (0%)</span>
+                  </div>
+                  <div class="w-full h-3 rounded-full bg-toss-border dark:bg-toss-darkBorder overflow-hidden">
+                    <div id="stat-bar-general" class="h-full bg-toss-subtext transition-all duration-500" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg flex flex-col justify-between">
+              <h4 class="font-bold text-sm">요약 리포트</h4>
+              <div class="space-y-3 my-4 text-xs">
+                <div class="flex justify-between py-1 border-b border-toss-border dark:border-toss-darkBorder">
+                  <span class="text-toss-subtext">등록된 총 기록</span>
+                  <span id="stat-metrics-total" class="font-bold">0건</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-toss-border dark:border-toss-darkBorder">
+                  <span class="text-toss-subtext">첨부 파일 포함</span>
+                  <span id="stat-metrics-files" class="font-bold">0건</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-toss-border dark:border-toss-darkBorder">
+                  <span class="text-toss-subtext">고정 항목</span>
+                  <span id="stat-metrics-favs" class="font-bold">0건</span>
+                </div>
+              </div>
+              <button onclick="triggerPrintReport()" class="toss-button w-full py-3 text-xs font-bold rounded-2xl bg-toss-card dark:bg-toss-darkCard border border-toss-border dark:border-toss-darkBorder hover:bg-toss-border/40 transition">
+                통계 보고서 인쇄
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 7: CSV -->
+      <section id="pane-csv" class="view-pane hidden max-w-2xl mx-auto">
+        <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
+          <div>
+            <h3 class="text-2xl font-bold tracking-tight">CSV 대량 연동</h3>
+            <p class="text-xs text-toss-subtext mt-1">CSV 파일 내보내기 및 업로드를 지원합니다.</p>
+          </div>
+
+          <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg space-y-3">
+            <h4 class="font-bold text-sm">데이터 내보내기 (다운로드)</h4>
+            <p class="text-xs text-toss-subtext">전체 데이터를 CSV 파일로 다운로드합니다.</p>
+            <button onclick="exportToCSV()" class="toss-button px-5 py-3 text-xs font-bold rounded-2xl bg-toss-text text-white dark:bg-white dark:text-toss-text transition">
+              CSV 다운로드
+            </button>
+          </div>
+
+          <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg space-y-3">
+            <h4 class="font-bold text-sm">데이터 가져오기 (업로드)</h4>
+            <p class="text-xs text-toss-subtext">CSV 파일을 업로드하여 일괄 등록합니다. (카테고리, 제목, 요약)</p>
+            <input type="file" id="csv-file-input" accept=".csv" class="block w-full text-xs text-toss-subtext file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-toss-border cursor-pointer">
+            <button onclick="importFromCSV()" class="toss-button px-5 py-3 text-xs font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition">
+              일괄 등록 실행
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Detail View -->
+  <div id="detail-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
+    <div class="toss-card max-w-2xl w-full rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto space-y-6 shadow-2xl">
+      <div class="flex items-start justify-between border-b border-toss-border dark:border-toss-darkBorder pb-4">
+        <div class="space-y-1">
+          <span id="detail-modal-category" class="text-xs font-bold px-3 py-1 rounded-full bg-toss-lightBlue text-toss-blue">카테고리</span>
+          <h3 id="detail-modal-title" class="text-2xl font-bold tracking-tight pt-1">제목</h3>
+          <div id="detail-modal-date" class="text-xs text-toss-subtext">작성일자</div>
+        </div>
+        <button onclick="closeDetailModal()" class="p-1.5 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-sm leading-relaxed">
+        <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg">
+          <div class="text-xs font-bold text-toss-subtext mb-1">핵심 요약</div>
+          <div id="detail-modal-summary" class="font-bold">요약 내용</div>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-toss-subtext mb-1">상세 내용</div>
+          <div id="detail-modal-details" class="whitespace-pre-wrap text-toss-text dark:text-white">상세 내용이 표시됩니다.</div>
+        </div>
+
+        <div id="detail-modal-file-zone" class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg hidden">
+          <div class="text-xs font-bold text-toss-subtext mb-1">첨부 파일</div>
+          <a id="detail-modal-file-link" href="#" target="_blank" download class="text-xs font-bold text-toss-blue underline truncate block">
+            다운로드
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-4 border-t border-toss-border dark:border-toss-darkBorder">
+        <button id="btn-detail-delete" onclick="handleDeleteCurrentDetail()" class="toss-button px-4 py-2.5 text-xs font-bold rounded-xl text-toss-red hover:bg-toss-lightRed transition">
+          삭제하기
+        </button>
+        <div class="flex gap-2">
+          <button id="btn-detail-edit" onclick="handleEditCurrentDetail()" class="toss-button px-5 py-2.5 text-xs font-bold rounded-2xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition">
+            수정하기
+          </button>
+          <button onclick="closeDetailModal()" class="toss-button px-5 py-2.5 text-xs font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Supply Item Add -->
+  <div id="supply-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
+    <div class="toss-card max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-toss-border dark:border-toss-darkBorder pb-3">
+        <h3 class="text-lg font-bold">새 물품 등록</h3>
+        <button onclick="closeAddSupplyModal()" class="p-1 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="form-add-supply" onsubmit="handleAddSupplySubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-toss-subtext mb-1">품목명</label>
+          <input type="text" id="supp-name" required placeholder="구급 소독약" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-toss-subtext mb-1">분류</label>
+          <input type="text" id="supp-cat" required placeholder="보건용품" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-toss-subtext mb-1">초기 수량</label>
+            <input type="number" id="supp-qty" required value="10" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-toss-subtext mb-1">최소 필요 수량</label>
+            <input type="number" id="supp-min" required value="5" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+          </div>
+        </div>
+        <button type="submit" class="toss-button w-full py-3.5 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm mt-2">
+          저장하기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Popups -->
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-toss-text dark:bg-white text-white dark:text-toss-text text-xs sm:text-sm font-bold px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-200 flex items-center gap-2">
+    <span id="toast-message">알림 메시지</span>
+  </div>
+
+  <div id="printable-area" class="hidden"></div>
+
+  <!-- Firebase Scripts Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged,
+      signOut,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      GoogleAuthProvider,
+      signInWithPopup
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      collection, 
+      onSnapshot, 
+      query 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Your provided Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeRYQvFTL4l0KciQ1znIxO6dKPLdsdzpU",
+      authDomain: "saints021011.firebaseapp.com",
+      projectId: "saints021011",
+      storageBucket: "saints021011.firebasestorage.app",
+      messagingSenderId: "900966825477",
+      appId: "1:900966825477:web:0d5878d6f78318e1b2a66c",
+      measurementId: "G-RD9MVZSKKH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = "integrated-app-v1";
+
+    window.state = {
+      user: null,
+      currentMode: 'STUDY',
+      notes: [],
+      iceProfile: null,
+      supplies: [
+        { id: '1', name: '구급 소독약', category: '보건용품', qty: 8, minQty: 3 },
+        { id: '2', name: '학습 메모지', category: '학습자재', qty: 2, minQty: 5 }
+      ],
+      filterCategory: 'ALL',
+      searchQuery: '',
+      favoritesOnly: false,
+      activeDetailItem: null,
+      autoSaveTimer: null,
+      isAuthSignUp: false
+    };
+
+    function initAuth() {
+      onAuthStateChanged(auth, (user) => {
+        window.state.user = user;
+        const authScreen = document.getElementById('auth-screen');
+        const mainApp = document.getElementById('main-app');
+
+        if (user) {
+          authScreen.classList.add('opacity-0', 'pointer-events-none');
+          mainApp.classList.remove('hidden');
+          updateUserUI();
+          subscribeFirestoreData();
+        } else {
+          authScreen.classList.remove('opacity-0', 'pointer-events-none');
+          mainApp.classList.add('hidden');
+          updateUserUI();
+        }
+      });
+    }
+
+    function updateUserUI() {
+      const user = window.state.user;
+      const emailElem = document.getElementById('drawer-user-email');
+      const idElem = document.getElementById('drawer-user-id');
+
+      if (user) {
+        if (emailElem) emailElem.textContent = user.email || user.displayName || '구글 사용자';
+        if (idElem) idElem.textContent = 'ID: ' + user.uid.substring(0, 10) + '...';
+      }
+    }
+
+    function subscribeFirestoreData() {
+      const user = window.state.user;
+      if (!user) return;
+
+      const userId = user.uid;
+      const notesCol = collection(db, 'artifacts', appId, 'users', userId, 'notes');
+      const iceDocRef = doc(db, 'artifacts', appId, 'users', userId, 'iceProfile', 'main');
+      const suppliesCol = collection(db, 'artifacts', appId, 'users', userId, 'supplies');
+
+      onSnapshot(query(notesCol), (snapshot) => {
+        const fetchedNotes = [];
+        snapshot.forEach((docSnap) => {
+          fetchedNotes.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        window.state.notes = fetchedNotes;
+        renderDashboardNotes();
+        renderStats();
+      }, (err) => console.log('Notes error:', err));
+
+      onSnapshot(iceDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          window.state.iceProfile = docSnap.data();
+          populateICEProfileForm();
+        }
+      }, (err) => console.log('ICE error:', err));
+
+      onSnapshot(query(suppliesCol), (snapshot) => {
+        if (!snapshot.empty) {
+          const fetchedSupplies = [];
+          snapshot.forEach((docSnap) => {
+            fetchedSupplies.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          window.state.supplies = fetchedSupplies;
+          renderSuppliesTable();
+        } else {
+          renderSuppliesTable();
+        }
+      }, (err) => console.log('Supplies error:', err));
+    }
+
+    // Google Auth Handler
+    window.handleGoogleAuth = async function() {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        showToast('구글 계정으로 로그인되었습니다.');
+      } catch (err) {
+        alert('구글 로그인 오류: ' + err.message);
+      }
+    };
+
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseAppId = appId;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAuth();
+      renderDashboardNotes();
+      renderSuppliesTable();
+      renderStats();
+    });
+  </script>
+
+  <script>
+    function switchView(paneName) {
+      const panes = ['dashboard', 'write', 'ice', 'supplies', 'templates', 'stats', 'csv'];
+      
+      panes.forEach(pane => {
+        const elem = document.getElementById('pane-' + pane);
+        if (elem) {
+          if (pane === paneName) elem.classList.remove('hidden');
+          else elem.classList.add('hidden');
+        }
+      });
+
+      const toolbar = document.getElementById('global-toolbar');
+      if (toolbar) {
+        if (paneName === 'dashboard') toolbar.classList.remove('hidden');
+        else toolbar.classList.add('hidden');
+      }
+
+      toggleDrawer(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleServiceMode() {
+      const badge = document.getElementById('current-mode-badge');
+      const studyGroup = document.getElementById('nav-group-study');
+      const emrGroup = document.getElementById('nav-group-emr');
+
+      if (window.state.currentMode === 'STUDY') {
+        window.state.currentMode = 'EMR';
+        badge.textContent = '보건/응급 관리 모드';
+        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightRed text-toss-red border border-toss-red/10';
+        
+        if (studyGroup) studyGroup.classList.add('hidden');
+        if (emrGroup) emrGroup.classList.remove('hidden');
+
+        showToast('보건/응급 관리 모드로 전환되었습니다.');
+      } else {
+        window.state.currentMode = 'STUDY';
+        badge.textContent = '학습 정리 모드';
+        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightBlue text-toss-blue border border-toss-blue/10';
+        
+        if (studyGroup) studyGroup.classList.remove('hidden');
+        if (emrGroup) emrGroup.classList.add('hidden');
+
+        showToast('학습 정리 모드로 전환되었습니다.');
+      }
+
+      renderDashboardNotes();
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      showToast(isDark ? '다크 모드로 전환되었습니다.' : '라이트 모드로 전환되었습니다.');
+    }
+
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('drawer-overlay');
+      
+      if (open) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        drawer.classList.remove('translate-x-full');
+      } else {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        drawer.classList.add('translate-x-full');
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgElem = document.getElementById('toast-message');
+      msgElem.textContent = message;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function handleSearchFilter() {
+      const searchInput = document.getElementById('input-search');
+      const categorySelect = document.getElementById('select-category-filter');
+      
+      window.state.searchQuery = searchInput.value.trim().toLowerCase();
+      window.state.filterCategory = categorySelect.value;
+      
+      renderDashboardNotes();
+    }
+
+    function toggleFavoritesFilter() {
+      window.state.favoritesOnly = !window.state.favoritesOnly;
+      const btnText = document.getElementById('fav-filter-text');
+      btnText.textContent = window.state.favoritesOnly ? '전체 보기' : '고정 항목만 보기';
+      renderDashboardNotes();
+    }
+
+    function renderDashboardNotes() {
+      const container = document.getElementById('notes-grid-container');
+      const emptyState = document.getElementById('notes-empty-state');
+      if (!container) return;
+
+      let notes = window.state.notes || [];
+
+      if (window.state.currentMode === 'STUDY') {
+        notes = notes.filter(n => n.category === '학습 노트' || n.category === '일반 메모');
+      } else {
+        notes = notes.filter(n => n.category === '응급 및 보건');
+      }
+
+      if (window.state.filterCategory !== 'ALL') {
+        notes = notes.filter(n => n.category === window.state.filterCategory);
+      }
+      if (window.state.searchQuery) {
+        const q = window.state.searchQuery;
+        notes = notes.filter(n => 
+          (n.title && n.title.toLowerCase().includes(q)) || 
+          (n.summary && n.summary.toLowerCase().includes(q)) ||
+          (n.details && n.details.toLowerCase().includes(q))
+        );
+      }
+      if (window.state.favoritesOnly) {
+        notes = notes.filter(n => n.favorite === true || n.favorite === 'true');
+      }
+
+      notes.sort((a, b) => {
+        if ((b.favorite === true || b.favorite === 'true') - (a.favorite === true || a.favorite === 'true')) return 1;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      document.getElementById('stat-total-count').textContent = window.state.notes.length;
+      document.getElementById('stat-fav-count').textContent = window.state.notes.filter(n => n.favorite === true || n.favorite === 'true').length;
+      document.getElementById('stat-file-count').textContent = window.state.notes.filter(n => n.fileData).length;
+
+      container.innerHTML = '';
+
+      if (notes.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      notes.forEach(note => {
+        const isFav = note.favorite === true || note.favorite === 'true';
+        const card = document.createElement('div');
+        card.className = 'toss-card p-6 rounded-3xl hover:shadow-md transition flex flex-col justify-between cursor-pointer space-y-4';
+        card.onclick = () => openDetailModal(note);
+
+        card.innerHTML = `
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold px-3 py-1 rounded-full ${
+                note.category === '응급 및 보건' ? 'bg-toss-lightRed text-toss-red' : 'bg-toss-lightBlue text-toss-blue'
+              }">${escapeHtml(note.category)}</span>
+              ${isFav ? '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/40">고정됨</span>' : ''}
+            </div>
+
+            <h4 class="font-bold text-lg line-clamp-1 tracking-tight">${escapeHtml(note.title)}</h4>
+            <p class="text-xs text-toss-subtext line-clamp-2 leading-relaxed">${escapeHtml(note.summary || note.details || '내용 없음')}</p>
+          </div>
+
+          <div class="pt-3 border-t border-toss-border dark:border-toss-darkBorder flex items-center justify-between text-xs text-toss-subtext">
+            <span>${note.dateStr || '최근 작성'}</span>
+            ${note.fileData ? '<span class="font-bold text-toss-blue">[첨부파일]</span>' : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openWritePane(defaultCategory) {
+      document.getElementById('form-record').reset();
+      document.getElementById('reg-id').value = '';
+      document.getElementById('write-form-title').textContent = '새 기록 작성';
+      document.getElementById('file-attached-info').classList.add('hidden');
+
+      if (defaultCategory) {
+        const catSelect = document.getElementById('reg-category');
+        if (defaultCategory === '응급') catSelect.value = '응급 및 보건';
+        else catSelect.value = '학습 노트';
+      }
+
+      checkDraftAndPrompt();
+      switchView('write');
+    }
+
+    function triggerAutoSave() {
+      const title = document.getElementById('reg-title').value;
+      const details = document.getElementById('reg-details').value;
+      
+      clearTimeout(window.state.autoSaveTimer);
+      window.state.autoSaveTimer = setTimeout(() => {
+        if (title || details) {
+          localStorage.setItem('app_record_draft', JSON.stringify({ title, details }));
+          document.getElementById('autosave-badge').textContent = '임시 저장됨';
+        }
+      }, 1000);
+    }
+
+    function checkDraftAndPrompt() {
+      const draftStr = localStorage.getItem('app_record_draft');
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          if (draft.title || draft.details) {
+            document.getElementById('reg-title').value = draft.title || '';
+            document.getElementById('reg-details').value = draft.details || '';
+            document.getElementById('autosave-badge').textContent = '작성중 문서 복구됨';
+          }
+        } catch(e) {}
+      }
+    }
+
+    async function handleSaveRecord(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('reg-id').value;
+      const category = document.getElementById('reg-category').value;
+      const favorite = document.getElementById('reg-favorite').value === 'true';
+      const title = document.getElementById('reg-title').value;
+      const summary = document.getElementById('reg-summary').value;
+      const details = document.getElementById('reg-details').value;
+      const fileInput = document.getElementById('reg-file');
+
+      let fileData = null;
+
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        fileData = await convertFileToBase64(file);
+      }
+
+      const recordObj = {
+        category,
+        favorite,
+        title,
+        summary,
+        details,
+        dateStr: new Date().toLocaleDateString('ko-KR'),
+        createdAt: Date.now()
+      };
+
+      if (fileData) recordObj.fileData = fileData;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb) {
+        try {
+          const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          const notesCol = collection(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes');
+
+          if (id) {
+            await updateDoc(doc(notesCol, id), recordObj);
+          } else {
+            await addDoc(notesCol, recordObj);
+          }
+        } catch(err) {
+          console.error('Firestore 저장 오류:', err);
+        }
+      }
+
+      localStorage.removeItem('app_record_draft');
+      showToast('저장되었습니다.');
+      switchView('dashboard');
+    }
+
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+          name: file.name,
+          url: reader.result
+        });
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    async function handleSaveICEProfile(e) {
+      e.preventDefault();
+      const profile = {
+        name: document.getElementById('ice-name').value,
+        idNumber: document.getElementById('ice-id').value,
+        bloodType: document.getElementById('ice-blood').value,
+        contact: document.getElementById('ice-contact').value,
+        allergies: document.getElementById('ice-allergy').value,
+        diseases: document.getElementById('ice-disease').value
+      };
+
+      window.state.iceProfile = profile;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb) {
+        try {
+          const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          const iceDocRef = doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'iceProfile', 'main');
+          await setDoc(iceDocRef, profile);
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      showToast('응급 프로필이 업데이트되었습니다.');
+    }
+
+    function populateICEProfileForm() {
+      const p = window.state.iceProfile;
+      if (!p) return;
+      document.getElementById('ice-name').value = p.name || '';
+      document.getElementById('ice-id').value = p.idNumber || '';
+      document.getElementById('ice-blood').value = p.bloodType || '';
+      document.getElementById('ice-contact').value = p.contact || '';
+      document.getElementById('ice-allergy').value = p.allergies || '';
+      document.getElementById('ice-disease').value = p.diseases || '';
+    }
+
+    function openDetailModal(note) {
+      window.state.activeDetailItem = note;
+      document.getElementById('detail-modal-category').textContent = note.category;
+      document.getElementById('detail-modal-title').textContent = note.title;
+      document.getElementById('detail-modal-date').textContent = note.dateStr || '작성일 정보 없음';
+      document.getElementById('detail-modal-summary').textContent = note.summary || '요약 없음';
+      document.getElementById('detail-modal-details').textContent = note.details || '상세 내용 없음';
+
+      const fileZone = document.getElementById('detail-modal-file-zone');
+      const fileLink = document.getElementById('detail-modal-file-link');
+
+      if (note.fileData) {
+        fileZone.classList.remove('hidden');
+        fileLink.textContent = note.fileData.name + ' (열기)';
+        fileLink.href = note.fileData.url;
+      } else {
+        fileZone.classList.add('hidden');
+      }
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    async function handleDeleteCurrentDetail() {
+      const item = window.state.activeDetailItem;
+      if (!item) return;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb && !item.id.startsWith('local_')) {
+        try {
+          const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          await deleteDoc(doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes', item.id));
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      window.state.notes = window.state.notes.filter(n => n.id !== item.id);
+      showToast('삭제되었습니다.');
+      closeDetailModal();
+      renderDashboardNotes();
+      renderStats();
+    }
+
+    function handleEditCurrentDetail() {
+      const item = window.state.activeDetailItem;
+      if (!item) return;
+
+      closeDetailModal();
+      openWritePane();
+
+      document.getElementById('reg-id').value = item.id;
+      document.getElementById('reg-category').value = item.category;
+      document.getElementById('reg-favorite').value = item.favorite ? 'true' : 'false';
+      document.getElementById('reg-title').value = item.title;
+      document.getElementById('reg-summary').value = item.summary || '';
+      document.getElementById('reg-details').value = item.details || '';
+      document.getElementById('write-form-title').textContent = '기록 수정';
+
+      if (item.fileData) {
+        const fileInfo = document.getElementById('file-attached-info');
+        fileInfo.textContent = '기존 첨부파일: ' + item.fileData.name;
+        fileInfo.classList.remove('hidden');
+      }
+    }
+
+    function renderSuppliesTable() {
+      const tbody = document.getElementById('supplies-table-body');
+      const alertBox = document.getElementById('supplies-low-alert');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      let hasLowStock = false;
+
+      window.state.supplies.forEach(item => {
+        if (item.qty <= item.minQty) hasLowStock = true;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-toss-bg dark:hover:bg-toss-darkBg transition';
+
+        tr.innerHTML = `
+          <td class="py-4 px-4 font-bold text-toss-text dark:text-white">${escapeHtml(item.name)}</td>
+          <td class="py-4 px-4 text-toss-subtext">${escapeHtml(item.category)}</td>
+          <td class="py-4 px-4">
+            <span class="font-extrabold ${item.qty <= item.minQty ? 'text-toss-red' : ''}">${item.qty}개</span>
+          </td>
+          <td class="py-4 px-4 text-toss-subtext">${item.minQty}개</td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="adjustSupplyQty('${item.id}', -1)" class="toss-button px-3 py-1.5 text-xs font-bold rounded-xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition">-1</button>
+              <button onclick="adjustSupplyQty('${item.id}', 5)" class="toss-button px-3 py-1.5 text-xs font-bold rounded-xl bg-toss-lightBlue text-toss-blue transition">+5</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (hasLowStock && alertBox) alertBox.classList.remove('hidden');
+      else if (alertBox) alertBox.classList.add('hidden');
+    }
+
+    function adjustSupplyQty(id, amount) {
+      const item = window.state.supplies.find(s => s.id === id);
+      if (item) {
+        item.qty = Math.max(0, item.qty + amount);
+        renderSuppliesTable();
+        showToast(item.name + ' 수량이 조정되었습니다.');
+      }
+    }
+
+    function openAddSupplyModal() {
+      const modal = document.getElementById('supply-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeAddSupplyModal() {
+      const modal = document.getElementById('supply-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function handleAddSupplySubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('supp-name').value;
+      const category = document.getElementById('supp-cat').value;
+      const qty = parseInt(document.getElementById('supp-qty').value, 10);
+      const minQty = parseInt(document.getElementById('supp-min').value, 10);
+
+      window.state.supplies.push({
+        id: 'supp_' + Date.now(),
+        name,
+        category,
+        qty,
+        minQty
+      });
+
+      closeAddSupplyModal();
+      renderSuppliesTable();
+      showToast('새 물품이 추가되었습니다.');
+    }
+
+    function applyTemplate(type) {
+      openWritePane();
+      const titleInput = document.getElementById('reg-title');
+      const detailsInput = document.getElementById('reg-details');
+
+      if (type === 'cornell') {
+        titleInput.value = '학습 코넬 정리 - [주제]';
+        detailsInput.value = `[핵심 키워드]\n- 키워드 1:\n- 키워드 2:\n\n[상세 내용]\n1. 주제 내용\n\n[요약 및 질문]\n- 요약:`;
+      } else if (type === 'incident') {
+        titleInput.value = '응급 조치 일지';
+        document.getElementById('reg-category').value = '응급 및 보건';
+        detailsInput.value = `[발생 상황]\n- 시각:\n- 장소:\n\n[증상 요약]\n- 주요 경과:\n\n[조치 내용]\n- 실시 내용:`;
+      } else if (type === 'meeting') {
+        titleInput.value = '회의 요약 노트';
+        detailsInput.value = `[회의 안건]\n- 안건 내용:\n\n[결정 사항]\n- 실행 계획:`;
+      }
+    }
+
+    function renderStats() {
+      const notes = window.state.notes || [];
+      const total = notes.length || 1;
+
+      const studyCount = notes.filter(n => n.category === '학습 노트').length;
+      const emrCount = notes.filter(n => n.category === '응급 및 보건').length;
+      const generalCount = notes.filter(n => n.category === '일반 메모').length;
+
+      document.getElementById('stat-bar-study-val').textContent = `${studyCount}건 (${Math.round((studyCount/total)*100)}%)`;
+      document.getElementById('stat-bar-study').style.width = `${Math.round((studyCount/total)*100)}%`;
+
+      document.getElementById('stat-bar-emr-val').textContent = `${emrCount}건 (${Math.round((emrCount/total)*100)}%)`;
+      document.getElementById('stat-bar-emr').style.width = `${Math.round((emrCount/total)*100)}%`;
+
+      document.getElementById('stat-bar-general-val').textContent = `${generalCount}건 (${Math.round((generalCount/total)*100)}%)`;
+      document.getElementById('stat-bar-general').style.width = `${Math.round((generalCount/total)*100)}%`;
+
+      document.getElementById('stat-metrics-total').textContent = notes.length + '건';
+      document.getElementById('stat-metrics-files').textContent = notes.filter(n => n.fileData).length + '건';
+      document.getElementById('stat-metrics-favs').textContent = notes.filter(n => n.favorite).length + '건';
+    }
+
+    function exportToCSV() {
+      const notes = window.state.notes || [];
+      if (notes.length === 0) {
+        showToast('내보낼 데이터가 없습니다.');
+        return;
+      }
+
+      let csvContent = "\uFEFF카테고리,제목,요약,작성일\n";
+      notes.forEach(n => {
+        const cat = `"${(n.category || '').replace(/"/g, '""')}"`;
+        const title = `"${(n.title || '').replace(/"/g, '""')}"`;
+        const summary = `"${(n.summary || '').replace(/"/g, '""')}"`;
+        const date = `"${n.dateStr || ''}"`;
+        csvContent += `${cat},${title},${summary},${date}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `backup_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('CSV 다운로드가 완료되었습니다.');
+    }
+
+    function importFromCSV() {
+      const fileInput = document.getElementById('csv-file-input');
+      if (!fileInput.files || !fileInput.files[0]) {
+        showToast('CSV 파일을 선택해주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        let addedCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const cols = lines[i].split(',');
+          if (cols.length >= 2) {
+            const cat = cols[0].replace(/"/g, '').trim() || '일반 메모';
+            const title = cols[1].replace(/"/g, '').trim() || '가져온 항목';
+            const summary = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
+
+            window.state.notes.push({
+              id: 'csv_' + Date.now() + '_' + i,
+              category: cat,
+              title: title,
+              summary: summary,
+              details: summary,
+              dateStr: new Date().toLocaleDateString('ko-KR'),
+              createdAt: Date.now()
+            });
+            addedCount++;
+          }
+        }
+
+        renderDashboardNotes();
+        renderStats();
+        showToast(`${addedCount}건의 데이터가 등록되었습니다.`);
+      };
+      reader.readAsText(fileInput.files[0], 'UTF-8');
+    }
+
+    function triggerPrintReport() {
+      const printContainer = document.getElementById('printable-area');
+      const notes = window.state.notes || [];
+
+      let html = `
+        <div style="padding: 24px; font-family: sans-serif;">
+          <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 6px;">통합 기록 플랫폼 보고서</h1>
+          <p style="font-size: 12px; color: #666; margin-bottom: 24px;">출력일시: ${new Date().toLocaleString('ko-KR')}</p>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="background: #f2f4f6;">
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">분류</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">제목</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">요약</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">작성일</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      notes.forEach(n => {
+        html += `
+          <tr>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.category)}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px; font-weight: bold;">${escapeHtml(n.title)}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.summary || '')}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${n.dateStr || ''}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table></div>`;
+      printContainer.innerHTML = html;
+      window.print();
+    }
+
+    function toggleAuthMode() {
+      window.state.isAuthSignUp = !window.state.isAuthSignUp;
+      const title = document.getElementById('auth-screen-title');
+      const sub = document.getElementById('auth-screen-sub');
+      const submitBtn = document.getElementById('btn-auth-submit');
+      const toggleBtn = document.getElementById('btn-auth-toggle');
+
+      if (window.state.isAuthSignUp) {
+        title.textContent = '회원가입';
+        sub.textContent = '서비스 이용을 위해 신규 계정을 만드세요.';
+        submitBtn.textContent = '가입하기';
+        toggleBtn.textContent = '기존 계정으로 로그인';
+      } else {
+        title.textContent = '로그인이 필요합니다';
+        sub.textContent = '서비스 이용을 위해 계정에 로그인해주세요.';
+        submitBtn.textContent = '로그인하기';
+        toggleBtn.textContent = '신규 회원가입';
+      }
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+
+      try {
+        if (window.state.isAuthSignUp) {
+          const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+          await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+          showToast('회원가입이 완료되었습니다.');
+        } else {
+          const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+          await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+          showToast('로그인되었습니다.');
+        }
+      } catch(err) {
+        alert('인증 오류: ' + err.message);
+      }
+    }
+
+    async function handlePasswordReset() {
+      const email = document.getElementById('auth-email').value;
+      if (!email) {
+        alert('이메일을 입력한 후 누르세요.');
+        return;
+      }
+      try {
+        const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        await sendPasswordResetEmail(window.firebaseAuth, email);
+        showToast('비밀번호 재설정 이메일이 발송되었습니다.');
+      } catch(err) {
+        alert('오류: ' + err.message);
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        const { signOut } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        await signOut(window.firebaseAuth);
+        showToast('로그아웃되었습니다.');
+        toggleDrawer(false);
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
