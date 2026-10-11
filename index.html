@@ -83,7 +83,6 @@
       transform: scale(0.98);
     }
 
-    /* Drawer animation */
     .drawer-overlay {
       transition: opacity 0.25s ease-in-out;
     }
@@ -91,7 +90,6 @@
       transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Print styles */
     @media print {
       body * { visibility: hidden; }
       #printable-area, #printable-area * { visibility: visible; }
@@ -102,7 +100,7 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-toss-blue selection:text-white">
 
-  <!-- Mandatory Auth Screen (Full Screen Overlay) -->
+  <!-- Mandatory Auth Screen -->
   <div id="auth-screen" class="fixed inset-0 z-50 bg-toss-bg dark:bg-toss-darkBg flex items-center justify-center p-4 transition-opacity duration-300">
     <div class="toss-card max-w-md w-full rounded-3xl p-8 space-y-6 shadow-xl">
       <div class="text-center space-y-2">
@@ -113,7 +111,6 @@
         <p id="auth-screen-sub" class="text-sm text-toss-subtext">서비스 이용을 위해 계정에 로그인해주세요.</p>
       </div>
 
-      <!-- Google Login Button -->
       <button onclick="handleGoogleAuth()" class="toss-button w-full py-3.5 px-4 rounded-2xl bg-white dark:bg-[#2c2c2e] border border-toss-border dark:border-toss-darkBorder text-toss-text dark:text-white font-bold text-sm flex items-center justify-center gap-3 shadow-sm hover:bg-gray-50 dark:hover:bg-[#3a3a3c] transition">
         <svg class="w-5 h-5" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -130,18 +127,15 @@
         <div class="flex-grow border-t border-toss-border dark:border-toss-darkBorder"></div>
       </div>
 
-      <!-- Email/Password Login Form -->
       <form id="form-auth" onsubmit="handleAuthSubmit(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">이메일</label>
           <input type="email" id="auth-email" required placeholder="example@toss.im" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
         </div>
-
         <div>
           <label class="block text-xs font-semibold text-toss-subtext mb-1.5 pl-1">비밀번호</label>
           <input type="password" id="auth-password" required placeholder="비밀번호를 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-[#2c2c2e] text-toss-text dark:text-white focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
         </div>
-
         <button type="submit" id="btn-auth-submit" class="toss-button w-full py-4 text-base font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm mt-2">
           로그인하기
         </button>
@@ -161,10 +155,9 @@
   <!-- Main Authenticated App Container -->
   <div id="main-app" class="min-h-screen flex flex-col hidden">
 
-    <!-- Top Application Header -->
+    <!-- Header -->
     <header class="sticky top-0 z-40 w-full toss-card border-b backdrop-blur-md bg-opacity-80 dark:bg-opacity-80 transition-colors">
       <div class="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
-        
         <div class="flex items-center gap-3">
           <div onclick="switchView('dashboard')" class="cursor-pointer flex items-center gap-2.5 group">
             <div class="w-8 h-8 rounded-xl bg-toss-blue flex items-center justify-center text-white font-bold text-base shadow-sm">
@@ -172,7 +165,6 @@
             </div>
             <span class="font-bold text-lg tracking-tight">기록 플랫폼</span>
           </div>
-
           <span id="current-mode-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightBlue text-toss-blue border border-toss-blue/10">
             학습 정리 모드
           </span>
@@ -183,23 +175,19 @@
             <svg class="w-3.5 h-3.5 text-toss-subtext" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
             <span class="hidden sm:inline">모드 전환</span>
           </button>
-
           <button onclick="toggleDarkMode()" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition text-toss-text dark:text-white" title="테마 변경">
             <svg id="theme-icon-sun" class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             <svg id="theme-icon-moon" class="w-4 h-4 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
           </button>
-
           <button onclick="toggleDrawer(true)" class="toss-button p-2.5 rounded-xl bg-toss-bg dark:bg-toss-darkCard hover:bg-toss-border/60 transition">
             <svg class="w-5 h-5 text-toss-text dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
           </button>
         </div>
-
       </div>
     </header>
 
     <!-- Side Navigation Drawer -->
     <div id="drawer-overlay" class="drawer-overlay fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity" onclick="toggleDrawer(false)"></div>
-    
     <aside id="nav-drawer" class="drawer-content fixed top-0 right-0 z-50 w-80 h-full toss-card border-l shadow-2xl translate-x-full flex flex-col transition-transform duration-300">
       <div class="p-6 border-b border-toss-border dark:border-toss-darkBorder flex items-center justify-between">
         <span class="font-bold text-lg">메뉴</span>
@@ -209,15 +197,12 @@
       </div>
 
       <div class="p-5 flex-1 overflow-y-auto space-y-6">
-        
-        <!-- User Account Info -->
         <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg border border-toss-border dark:border-toss-darkBorder space-y-1">
           <div class="text-xs font-semibold text-toss-subtext">로그인된 계정</div>
           <div id="drawer-user-email" class="font-bold text-sm truncate text-toss-text dark:text-white">사용자 계정</div>
           <div id="drawer-user-id" class="text-xs text-toss-subtext truncate font-mono pt-0.5">ID: -</div>
         </div>
 
-        <!-- Navigation Links -->
         <div id="nav-group-study" class="space-y-1">
           <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">학습 메뉴</div>
           <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
@@ -234,12 +219,15 @@
 
         <div id="nav-group-emr" class="space-y-1 hidden">
           <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">보건/응급 메뉴</div>
-          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
-            <span>응급 기록 목록</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">메인</span>
+          <button onclick="switchView('dashboard'); switchEMRSubMode('CHART');" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>환자 SOAP 차트</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">차트</span>
+          </button>
+          <button onclick="switchView('dashboard'); switchEMRSubMode('NOTE');" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+            응급 의료 노트
           </button>
           <button onclick="openWritePane('응급')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-            새 응급 기록 작성
+            새 기록 작성
           </button>
           <button onclick="switchView('ice')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
             응급 참고 프로필 설정
@@ -261,10 +249,8 @@
             보고서 인쇄
           </button>
         </div>
-
       </div>
 
-      <!-- Drawer Logout -->
       <div class="p-5 border-t border-toss-border dark:border-toss-darkBorder">
         <button onclick="handleLogout()" class="toss-button w-full py-3.5 px-4 rounded-2xl bg-toss-lightRed hover:bg-red-100 dark:bg-toss-red/10 text-toss-red font-bold text-sm transition">
           로그아웃
@@ -272,8 +258,20 @@
       </div>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- Main Content -->
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
+
+      <!-- EMR Sub-Tab Bar (Only visible in EMR Mode) -->
+      <div id="emr-subtab-container" class="mb-6 hidden">
+        <div class="flex gap-2 p-1.5 toss-card rounded-2xl">
+          <button onclick="switchEMRSubMode('CHART')" id="btn-subtab-chart" class="flex-1 py-3 text-xs font-bold rounded-xl bg-toss-lightRed text-toss-red transition shadow-sm flex items-center justify-center gap-1.5">
+            <span>🩺 환자 차트 모드 (SOAP)</span>
+          </button>
+          <button onclick="switchEMRSubMode('NOTE')" id="btn-subtab-note" class="flex-1 py-3 text-xs font-bold rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-center gap-1.5">
+            <span>📝 일반 응급 의료 노트</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Top Toolbar -->
       <section id="global-toolbar" class="mb-6 toss-card p-4 rounded-3xl space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
@@ -351,7 +349,7 @@
           <div class="flex items-center justify-between border-b border-toss-border dark:border-toss-darkBorder pb-5">
             <div>
               <h3 id="write-form-title" class="text-2xl font-bold tracking-tight">새 기록 작성</h3>
-              <p class="text-xs text-toss-subtext mt-1">학습 노트 및 응급 보건 기록을 작성합니다.</p>
+              <p id="write-form-subtitle" class="text-xs text-toss-subtext mt-1">학습 노트 및 응급 보건 기록을 작성합니다.</p>
             </div>
             <span id="autosave-badge" class="text-xs px-3 py-1 rounded-full bg-toss-bg dark:bg-toss-darkBg text-toss-subtext font-semibold">
               임시 저장 비활성
@@ -361,7 +359,7 @@
           <form id="form-record" onsubmit="handleSaveRecord(event)" class="space-y-5">
             <input type="hidden" id="reg-id" value="">
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div id="section-standard-meta" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">카테고리</label>
                 <select id="reg-category" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
@@ -380,18 +378,41 @@
               </div>
             </div>
 
+            <!-- SOAP Vitals Section (Visible only in EMR Chart Mode) -->
+            <div id="section-vitals" class="hidden space-y-3 p-5 rounded-2xl bg-toss-bg dark:bg-toss-darkBg">
+              <label class="block text-xs font-bold text-toss-subtext">바이탈 사인 (Vital Signs)</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">체온 (°C)</span>
+                  <input type="text" id="vital-temp" placeholder="36.5" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
+                </div>
+                <div>
+                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">혈압 (mmHg)</span>
+                  <input type="text" id="vital-bp" placeholder="120/80" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
+                </div>
+                <div>
+                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">맥박 (bpm)</span>
+                  <input type="text" id="vital-hr" placeholder="72" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
+                </div>
+                <div>
+                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">혈당 (mg/dL)</span>
+                  <input type="text" id="vital-bs" placeholder="95" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
+                </div>
+              </div>
+            </div>
+
             <div>
-              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">제목</label>
+              <label id="label-reg-title" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">제목</label>
               <input type="text" id="reg-title" required oninput="triggerAutoSave()" placeholder="제목을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">핵심 요약</label>
+              <label id="label-reg-summary" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">핵심 요약</label>
               <textarea id="reg-summary" rows="2" oninput="triggerAutoSave()" placeholder="주요 내용 요약" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상세 내용</label>
+              <label id="label-reg-details" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상세 내용</label>
               <textarea id="reg-details" rows="6" oninput="triggerAutoSave()" placeholder="세부 내용을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
             </div>
 
@@ -494,9 +515,7 @@
                   <th class="py-3 px-4 text-right">수량 변경</th>
                 </tr>
               </thead>
-              <tbody id="supplies-table-body" class="divide-y divide-toss-border dark:divide-toss-darkBorder">
-                <!-- Dynamic supplies -->
-              </tbody>
+              <tbody id="supplies-table-body" class="divide-y divide-toss-border dark:divide-toss-darkBorder"></tbody>
             </table>
           </div>
         </div>
@@ -543,7 +562,6 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg space-y-4">
               <h4 class="font-bold text-sm">카테고리별 비중</h4>
-              
               <div class="space-y-3">
                 <div>
                   <div class="flex justify-between text-xs font-bold mb-1.5">
@@ -554,7 +572,6 @@
                     <div id="stat-bar-study" class="h-full bg-toss-blue transition-all duration-500" style="width: 0%;"></div>
                   </div>
                 </div>
-
                 <div>
                   <div class="flex justify-between text-xs font-bold mb-1.5">
                     <span>응급 및 보건</span>
@@ -564,7 +581,6 @@
                     <div id="stat-bar-emr" class="h-full bg-toss-red transition-all duration-500" style="width: 0%;"></div>
                   </div>
                 </div>
-
                 <div>
                   <div class="flex justify-between text-xs font-bold mb-1.5">
                     <span>일반 메모</span>
@@ -619,7 +635,7 @@
 
           <div class="p-6 rounded-3xl bg-toss-bg dark:bg-toss-darkBg space-y-3">
             <h4 class="font-bold text-sm">데이터 가져오기 (업로드)</h4>
-            <p class="text-xs text-toss-subtext">CSV 파일을 업로드하여 일괄 등록합니다. (카테고리, 제목, 요약)</p>
+            <p class="text-xs text-toss-subtext">CSV 파일을 업로드하여 일괄 등록합니다.</p>
             <input type="file" id="csv-file-input" accept=".csv" class="block w-full text-xs text-toss-subtext file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-toss-border cursor-pointer">
             <button onclick="importFromCSV()" class="toss-button px-5 py-3 text-xs font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition">
               일괄 등록 실행
@@ -646,13 +662,18 @@
       </div>
 
       <div class="space-y-4 text-sm leading-relaxed">
+        <div id="detail-vitals-zone" class="p-4 rounded-2xl bg-toss-lightRed/20 border border-toss-red/20 hidden">
+          <div class="text-xs font-bold text-toss-red mb-2">바이탈 사인 측정 기록</div>
+          <div id="detail-vitals-content" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold"></div>
+        </div>
+
         <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg">
-          <div class="text-xs font-bold text-toss-subtext mb-1">핵심 요약</div>
+          <div id="detail-summary-label" class="text-xs font-bold text-toss-subtext mb-1">핵심 요약</div>
           <div id="detail-modal-summary" class="font-bold">요약 내용</div>
         </div>
 
         <div>
-          <div class="text-xs font-bold text-toss-subtext mb-1">상세 내용</div>
+          <div id="detail-details-label" class="text-xs font-bold text-toss-subtext mb-1">상세 내용</div>
           <div id="detail-modal-details" class="whitespace-pre-wrap text-toss-text dark:text-white">상세 내용이 표시됩니다.</div>
         </div>
 
@@ -745,7 +766,6 @@
       query 
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Your provided Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDeRYQvFTL4l0KciQ1znIxO6dKPLdsdzpU",
       authDomain: "saints021011.firebaseapp.com",
@@ -763,7 +783,8 @@
 
     window.state = {
       user: null,
-      currentMode: 'STUDY',
+      currentMode: 'STUDY', // 'STUDY' or 'EMR'
+      emrSubMode: 'CHART', // 'CHART' (환자 SOAP 차트) or 'NOTE' (일반 의료 노트)
       notes: [],
       iceProfile: null,
       supplies: [
@@ -848,7 +869,6 @@
       }, (err) => console.log('Supplies error:', err));
     }
 
-    // Google Auth Handler
     window.handleGoogleAuth = async function() {
       try {
         const provider = new GoogleAuthProvider();
@@ -897,6 +917,7 @@
       const badge = document.getElementById('current-mode-badge');
       const studyGroup = document.getElementById('nav-group-study');
       const emrGroup = document.getElementById('nav-group-emr');
+      const emrSubBar = document.getElementById('emr-subtab-container');
 
       if (window.state.currentMode === 'STUDY') {
         window.state.currentMode = 'EMR';
@@ -905,8 +926,10 @@
         
         if (studyGroup) studyGroup.classList.add('hidden');
         if (emrGroup) emrGroup.classList.remove('hidden');
+        if (emrSubBar) emrSubBar.classList.remove('hidden');
 
         showToast('보건/응급 관리 모드로 전환되었습니다.');
+        switchEMRSubMode('CHART');
       } else {
         window.state.currentMode = 'STUDY';
         badge.textContent = '학습 정리 모드';
@@ -914,10 +937,25 @@
         
         if (studyGroup) studyGroup.classList.remove('hidden');
         if (emrGroup) emrGroup.classList.add('hidden');
+        if (emrSubBar) emrSubBar.classList.add('hidden');
 
         showToast('학습 정리 모드로 전환되었습니다.');
+        renderDashboardNotes();
       }
+    }
 
+    function switchEMRSubMode(subMode) {
+      window.state.emrSubMode = subMode;
+      const btnChart = document.getElementById('btn-subtab-chart');
+      const btnNote = document.getElementById('btn-subtab-note');
+
+      if (subMode === 'CHART') {
+        if (btnChart) btnChart.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-toss-lightRed text-toss-red transition shadow-sm flex items-center justify-center gap-1.5';
+        if (btnNote) btnNote.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-center gap-1.5';
+      } else {
+        if (btnNote) btnNote.className = 'flex-1 py-3 text-xs font-bold rounded-xl bg-toss-lightBlue text-toss-blue transition shadow-sm flex items-center justify-center gap-1.5';
+        if (btnChart) btnChart.className = 'flex-1 py-3 text-xs font-bold rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-center gap-1.5';
+      }
       renderDashboardNotes();
     }
 
@@ -971,17 +1009,25 @@
     function renderDashboardNotes() {
       const container = document.getElementById('notes-grid-container');
       const emptyState = document.getElementById('notes-empty-state');
+      const titleElem = document.getElementById('dashboard-list-title');
       if (!container) return;
 
       let notes = window.state.notes || [];
 
       if (window.state.currentMode === 'STUDY') {
         notes = notes.filter(n => n.category === '학습 노트' || n.category === '일반 메모');
+        if (titleElem) titleElem.textContent = '학습 및 일반 기록';
       } else {
-        notes = notes.filter(n => n.category === '응급 및 보건');
+        if (window.state.emrSubMode === 'CHART') {
+          notes = notes.filter(n => n.isChart === true);
+          if (titleElem) titleElem.textContent = '환자 SOAP 차트 목록';
+        } else {
+          notes = notes.filter(n => n.category === '응급 및 보건' && !n.isChart);
+          if (titleElem) titleElem.textContent = '일반 응급 의료 노트';
+        }
       }
 
-      if (window.state.filterCategory !== 'ALL') {
+      if (window.state.filterCategory !== 'ALL' && window.state.currentMode === 'STUDY') {
         notes = notes.filter(n => n.category === window.state.filterCategory);
       }
       if (window.state.searchQuery) {
@@ -1001,9 +1047,9 @@
         return (b.createdAt || 0) - (a.createdAt || 0);
       });
 
-      document.getElementById('stat-total-count').textContent = window.state.notes.length;
-      document.getElementById('stat-fav-count').textContent = window.state.notes.filter(n => n.favorite === true || n.favorite === 'true').length;
-      document.getElementById('stat-file-count').textContent = window.state.notes.filter(n => n.fileData).length;
+      document.getElementById('stat-total-count').textContent = notes.length;
+      document.getElementById('stat-fav-count').textContent = notes.filter(n => n.favorite === true || n.favorite === 'true').length;
+      document.getElementById('stat-file-count').textContent = notes.filter(n => n.fileData).length;
 
       container.innerHTML = '';
 
@@ -1016,6 +1062,7 @@
 
       notes.forEach(note => {
         const isFav = note.favorite === true || note.favorite === 'true';
+        const isChart = note.isChart;
         const card = document.createElement('div');
         card.className = 'toss-card p-6 rounded-3xl hover:shadow-md transition flex flex-col justify-between cursor-pointer space-y-4';
         card.onclick = () => openDetailModal(note);
@@ -1024,12 +1071,20 @@
           <div class="space-y-2.5">
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold px-3 py-1 rounded-full ${
-                note.category === '응급 및 보건' ? 'bg-toss-lightRed text-toss-red' : 'bg-toss-lightBlue text-toss-blue'
-              }">${escapeHtml(note.category)}</span>
+                isChart ? 'bg-toss-lightRed text-toss-red' : 'bg-toss-lightBlue text-toss-blue'
+              }">${escapeHtml(isChart ? '환자 SOAP 차트' : note.category)}</span>
               ${isFav ? '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/40">고정됨</span>' : ''}
             </div>
 
             <h4 class="font-bold text-lg line-clamp-1 tracking-tight">${escapeHtml(note.title)}</h4>
+            ${isChart && note.vitals ? `
+              <div class="grid grid-cols-4 gap-1 text-[11px] font-bold p-2 rounded-xl bg-toss-bg dark:bg-toss-darkBg text-toss-subtext">
+                <div>체온: <span class="text-toss-text dark:text-white">${note.vitals.temp || '-'}</span></div>
+                <div>혈압: <span class="text-toss-text dark:text-white">${note.vitals.bp || '-'}</span></div>
+                <div>맥박: <span class="text-toss-text dark:text-white">${note.vitals.hr || '-'}</span></div>
+                <div>혈당: <span class="text-toss-text dark:text-white">${note.vitals.bs || '-'}</span></div>
+              </div>
+            ` : ''}
             <p class="text-xs text-toss-subtext line-clamp-2 leading-relaxed">${escapeHtml(note.summary || note.details || '내용 없음')}</p>
           </div>
 
@@ -1045,13 +1100,39 @@
     function openWritePane(defaultCategory) {
       document.getElementById('form-record').reset();
       document.getElementById('reg-id').value = '';
-      document.getElementById('write-form-title').textContent = '새 기록 작성';
       document.getElementById('file-attached-info').classList.add('hidden');
 
-      if (defaultCategory) {
-        const catSelect = document.getElementById('reg-category');
-        if (defaultCategory === '응급') catSelect.value = '응급 및 보건';
-        else catSelect.value = '학습 노트';
+      const isEMRChartMode = (window.state.currentMode === 'EMR' && window.state.emrSubMode === 'CHART');
+      const titleElem = document.getElementById('write-form-title');
+      const subtitleElem = document.getElementById('write-form-subtitle');
+      const vitalsSec = document.getElementById('section-vitals');
+      const stdMetaSec = document.getElementById('section-standard-meta');
+      const labelTitle = document.getElementById('label-reg-title');
+      const labelSummary = document.getElementById('label-reg-summary');
+      const labelDetails = document.getElementById('label-reg-details');
+
+      if (isEMRChartMode) {
+        titleElem.textContent = '환자 SOAP 차트 작성';
+        subtitleElem.textContent = '대상자 바이탈 사인 및 주관적 증상, 처치를 기록합니다.';
+        vitalsSec.classList.remove('hidden');
+        stdMetaSec.classList.add('hidden');
+        labelTitle.textContent = '환자 성명 및 주 진단명';
+        labelSummary.textContent = 'Subjective (주관적 증상 호소)';
+        labelDetails.textContent = 'Assessment & Plan (평가 및 응급 조치 내용)';
+      } else {
+        titleElem.textContent = '새 기록 작성';
+        subtitleElem.textContent = '학습 노트 및 응급 보건 기록을 작성합니다.';
+        vitalsSec.classList.add('hidden');
+        stdMetaSec.classList.remove('hidden');
+        labelTitle.textContent = '제목';
+        labelSummary.textContent = '핵심 요약';
+        labelDetails.textContent = '상세 내용';
+
+        if (defaultCategory) {
+          const catSelect = document.getElementById('reg-category');
+          if (defaultCategory === '응급') catSelect.value = '응급 및 보건';
+          else catSelect.value = '학습 노트';
+        }
       }
 
       checkDraftAndPrompt();
@@ -1089,15 +1170,33 @@
       e.preventDefault();
       
       const id = document.getElementById('reg-id').value;
-      const category = document.getElementById('reg-category').value;
-      const favorite = document.getElementById('reg-favorite').value === 'true';
+      const isEMRChartMode = (window.state.currentMode === 'EMR' && window.state.emrSubMode === 'CHART');
+      
+      let category = '학습 노트';
+      let favorite = false;
+      let isChart = false;
+      let vitals = null;
+
+      if (isEMRChartMode) {
+        isChart = true;
+        category = '환자 차트';
+        vitals = {
+          temp: document.getElementById('vital-temp').value,
+          bp: document.getElementById('vital-bp').value,
+          hr: document.getElementById('vital-hr').value,
+          bs: document.getElementById('vital-bs').value
+        };
+      } else {
+        category = document.getElementById('reg-category').value;
+        favorite = document.getElementById('reg-favorite').value === 'true';
+      }
+
       const title = document.getElementById('reg-title').value;
       const summary = document.getElementById('reg-summary').value;
       const details = document.getElementById('reg-details').value;
       const fileInput = document.getElementById('reg-file');
 
       let fileData = null;
-
       if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
         fileData = await convertFileToBase64(file);
@@ -1106,6 +1205,8 @@
       const recordObj = {
         category,
         favorite,
+        isChart,
+        vitals,
         title,
         summary,
         details,
@@ -1140,10 +1241,7 @@
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve({
-          name: file.name,
-          url: reader.result
-        });
+        reader.onload = () => resolve({ name: file.name, url: reader.result });
         reader.onerror = error => reject(error);
       });
     }
@@ -1167,11 +1265,8 @@
           const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
           const iceDocRef = doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'iceProfile', 'main');
           await setDoc(iceDocRef, profile);
-        } catch(err) {
-          console.error(err);
-        }
+        } catch(err) {}
       }
-
       showToast('응급 프로필이 업데이트되었습니다.');
     }
 
@@ -1188,9 +1283,31 @@
 
     function openDetailModal(note) {
       window.state.activeDetailItem = note;
-      document.getElementById('detail-modal-category').textContent = note.category;
+      document.getElementById('detail-modal-category').textContent = note.isChart ? '환자 SOAP 차트' : note.category;
       document.getElementById('detail-modal-title').textContent = note.title;
       document.getElementById('detail-modal-date').textContent = note.dateStr || '작성일 정보 없음';
+      
+      const vitalsZone = document.getElementById('detail-vitals-zone');
+      const vitalsContent = document.getElementById('detail-vitals-content');
+      const summaryLabel = document.getElementById('detail-summary-label');
+      const detailsLabel = document.getElementById('detail-details-label');
+
+      if (note.isChart && note.vitals) {
+        vitalsZone.classList.remove('hidden');
+        vitalsContent.innerHTML = `
+          <div>체온: ${note.vitals.temp || '-'}</div>
+          <div>혈압: ${note.vitals.bp || '-'}</div>
+          <div>맥박: ${note.vitals.hr || '-'}</div>
+          <div>혈당: ${note.vitals.bs || '-'}</div>
+        `;
+        summaryLabel.textContent = 'Subjective (주관적 증상)';
+        detailsLabel.textContent = 'Assessment & Plan (평가 및 조치)';
+      } else {
+        vitalsZone.classList.add('hidden');
+        summaryLabel.textContent = '핵심 요약';
+        detailsLabel.textContent = '상세 내용';
+      }
+
       document.getElementById('detail-modal-summary').textContent = note.summary || '요약 없음';
       document.getElementById('detail-modal-details').textContent = note.details || '상세 내용 없음';
 
@@ -1219,13 +1336,11 @@
       if (!item) return;
 
       const user = window.state.user;
-      if (user && window.firebaseDb && !item.id.startsWith('local_')) {
+      if (user && window.firebaseDb) {
         try {
           const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
           await deleteDoc(doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes', item.id));
-        } catch(err) {
-          console.error(err);
-        }
+        } catch(err) {}
       }
 
       window.state.notes = window.state.notes.filter(n => n.id !== item.id);
@@ -1240,15 +1355,31 @@
       if (!item) return;
 
       closeDetailModal();
+      
+      if (item.isChart) {
+        window.state.currentMode = 'EMR';
+        window.state.emrSubMode = 'CHART';
+      } else {
+        window.state.currentMode = 'STUDY';
+      }
+
       openWritePane();
 
       document.getElementById('reg-id').value = item.id;
-      document.getElementById('reg-category').value = item.category;
-      document.getElementById('reg-favorite').value = item.favorite ? 'true' : 'false';
       document.getElementById('reg-title').value = item.title;
       document.getElementById('reg-summary').value = item.summary || '';
       document.getElementById('reg-details').value = item.details || '';
       document.getElementById('write-form-title').textContent = '기록 수정';
+
+      if (item.isChart && item.vitals) {
+        document.getElementById('vital-temp').value = item.vitals.temp || '';
+        document.getElementById('vital-bp').value = item.vitals.bp || '';
+        document.getElementById('vital-hr').value = item.vitals.hr || '';
+        document.getElementById('vital-bs').value = item.vitals.bs || '';
+      } else {
+        document.getElementById('reg-category').value = item.category;
+        document.getElementById('reg-favorite').value = item.favorite ? 'true' : 'false';
+      }
 
       if (item.fileData) {
         const fileInfo = document.getElementById('file-attached-info');
@@ -1302,13 +1433,11 @@
     }
 
     function openAddSupplyModal() {
-      const modal = document.getElementById('supply-modal');
-      modal.classList.remove('opacity-0', 'pointer-events-none');
+      document.getElementById('supply-modal').classList.remove('opacity-0', 'pointer-events-none');
     }
 
     function closeAddSupplyModal() {
-      const modal = document.getElementById('supply-modal');
-      modal.classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('supply-modal').classList.add('opacity-0', 'pointer-events-none');
     }
 
     function handleAddSupplySubmit(e) {
@@ -1318,14 +1447,7 @@
       const qty = parseInt(document.getElementById('supp-qty').value, 10);
       const minQty = parseInt(document.getElementById('supp-min').value, 10);
 
-      window.state.supplies.push({
-        id: 'supp_' + Date.now(),
-        name,
-        category,
-        qty,
-        minQty
-      });
-
+      window.state.supplies.push({ id: 'supp_' + Date.now(), name, category, qty, minQty });
       closeAddSupplyModal();
       renderSuppliesTable();
       showToast('새 물품이 추가되었습니다.');
@@ -1338,14 +1460,14 @@
 
       if (type === 'cornell') {
         titleInput.value = '학습 코넬 정리 - [주제]';
-        detailsInput.value = `[핵심 키워드]\n- 키워드 1:\n- 키워드 2:\n\n[상세 내용]\n1. 주제 내용\n\n[요약 및 질문]\n- 요약:`;
+        detailsInput.value = `[핵심 키워드]\n- 키워드 1:\n\n[상세 내용]\n1. 내용\n\n[요약]`;
       } else if (type === 'incident') {
         titleInput.value = '응급 조치 일지';
         document.getElementById('reg-category').value = '응급 및 보건';
-        detailsInput.value = `[발생 상황]\n- 시각:\n- 장소:\n\n[증상 요약]\n- 주요 경과:\n\n[조치 내용]\n- 실시 내용:`;
+        detailsInput.value = `[발생 상황]\n- 시각:\n- 장소:\n\n[조치 내용]`;
       } else if (type === 'meeting') {
         titleInput.value = '회의 요약 노트';
-        detailsInput.value = `[회의 안건]\n- 안건 내용:\n\n[결정 사항]\n- 실행 계획:`;
+        detailsInput.value = `[회의 안건]\n- 안건:\n\n[결정 사항]`;
       }
     }
 
@@ -1354,15 +1476,13 @@
       const total = notes.length || 1;
 
       const studyCount = notes.filter(n => n.category === '학습 노트').length;
-      const emrCount = notes.filter(n => n.category === '응급 및 보건').length;
+      const emrCount = notes.filter(n => n.category === '응급 및 보건' || n.isChart).length;
       const generalCount = notes.filter(n => n.category === '일반 메모').length;
 
       document.getElementById('stat-bar-study-val').textContent = `${studyCount}건 (${Math.round((studyCount/total)*100)}%)`;
       document.getElementById('stat-bar-study').style.width = `${Math.round((studyCount/total)*100)}%`;
-
       document.getElementById('stat-bar-emr-val').textContent = `${emrCount}건 (${Math.round((emrCount/total)*100)}%)`;
       document.getElementById('stat-bar-emr').style.width = `${Math.round((emrCount/total)*100)}%`;
-
       document.getElementById('stat-bar-general-val').textContent = `${generalCount}건 (${Math.round((generalCount/total)*100)}%)`;
       document.getElementById('stat-bar-general').style.width = `${Math.round((generalCount/total)*100)}%`;
 
@@ -1377,16 +1497,14 @@
         showToast('내보낼 데이터가 없습니다.');
         return;
       }
-
-      let csvContent = "\uFEFF카테고리,제목,요약,작성일\n";
+      let csvContent = "\uFEFF구분,제목,요약,작성일\n";
       notes.forEach(n => {
-        const cat = `"${(n.category || '').replace(/"/g, '""')}"`;
+        const cat = `"${(n.isChart ? '환자 SOAP 차트' : n.category).replace(/"/g, '""')}"`;
         const title = `"${(n.title || '').replace(/"/g, '""')}"`;
         const summary = `"${(n.summary || '').replace(/"/g, '""')}"`;
         const date = `"${n.dateStr || ''}"`;
         csvContent += `${cat},${title},${summary},${date}\n`;
       });
-
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -1404,34 +1522,27 @@
         showToast('CSV 파일을 선택해주세요.');
         return;
       }
-
       const reader = new FileReader();
       reader.onload = function (e) {
         const text = e.target.result;
         const lines = text.split('\n');
         let addedCount = 0;
-
         for (let i = 1; i < lines.length; i++) {
           if (!lines[i].trim()) continue;
           const cols = lines[i].split(',');
           if (cols.length >= 2) {
-            const cat = cols[0].replace(/"/g, '').trim() || '일반 메모';
-            const title = cols[1].replace(/"/g, '').trim() || '가져온 항목';
-            const summary = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
-
             window.state.notes.push({
               id: 'csv_' + Date.now() + '_' + i,
-              category: cat,
-              title: title,
-              summary: summary,
-              details: summary,
+              category: cols[0].replace(/"/g, '').trim() || '일반 메모',
+              title: cols[1].replace(/"/g, '').trim() || '가져온 항목',
+              summary: cols[2] ? cols[2].replace(/"/g, '').trim() : '',
+              details: '',
               dateStr: new Date().toLocaleDateString('ko-KR'),
               createdAt: Date.now()
             });
             addedCount++;
           }
         }
-
         renderDashboardNotes();
         renderStats();
         showToast(`${addedCount}건의 데이터가 등록되었습니다.`);
@@ -1442,34 +1553,10 @@
     function triggerPrintReport() {
       const printContainer = document.getElementById('printable-area');
       const notes = window.state.notes || [];
-
-      let html = `
-        <div style="padding: 24px; font-family: sans-serif;">
-          <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 6px;">통합 기록 플랫폼 보고서</h1>
-          <p style="font-size: 12px; color: #666; margin-bottom: 24px;">출력일시: ${new Date().toLocaleString('ko-KR')}</p>
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-            <thead>
-              <tr style="background: #f2f4f6;">
-                <th style="border: 1px solid #e5e8eb; padding: 10px;">분류</th>
-                <th style="border: 1px solid #e5e8eb; padding: 10px;">제목</th>
-                <th style="border: 1px solid #e5e8eb; padding: 10px;">요약</th>
-                <th style="border: 1px solid #e5e8eb; padding: 10px;">작성일</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
+      let html = `<div style="padding: 24px; font-family: sans-serif;"><h1 style="font-size: 22px; font-weight: bold; margin-bottom: 6px;">통합 기록 플랫폼 보고서</h1><table style="width: 100%; border-collapse: collapse; font-size: 12px;"><thead><tr style="background: #f2f4f6;"><th style="border: 1px solid #e5e8eb; padding: 10px;">분류</th><th style="border: 1px solid #e5e8eb; padding: 10px;">제목</th><th style="border: 1px solid #e5e8eb; padding: 10px;">작성일</th></tr></thead><tbody>`;
       notes.forEach(n => {
-        html += `
-          <tr>
-            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.category)}</td>
-            <td style="border: 1px solid #e5e8eb; padding: 10px; font-weight: bold;">${escapeHtml(n.title)}</td>
-            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.summary || '')}</td>
-            <td style="border: 1px solid #e5e8eb; padding: 10px;">${n.dateStr || ''}</td>
-          </tr>
-        `;
+        html += `<tr><td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.isChart ? '환자 차트' : n.category)}</td><td style="border: 1px solid #e5e8eb; padding: 10px; font-weight: bold;">${escapeHtml(n.title)}</td><td style="border: 1px solid #e5e8eb; padding: 10px;">${n.dateStr || ''}</td></tr>`;
       });
-
       html += `</tbody></table></div>`;
       printContainer.innerHTML = html;
       window.print();
@@ -1502,11 +1589,9 @@
 
       try {
         if (window.state.isAuthSignUp) {
-          const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
           await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
           showToast('회원가입이 완료되었습니다.');
         } else {
-          const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
           await signInWithEmailAndPassword(window.firebaseAuth, email, password);
           showToast('로그인되었습니다.');
         }
@@ -1522,7 +1607,6 @@
         return;
       }
       try {
-        const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
         await sendPasswordResetEmail(window.firebaseAuth, email);
         showToast('비밀번호 재설정 이메일이 발송되었습니다.');
       } catch(err) {
@@ -1532,13 +1616,10 @@
 
     async function handleLogout() {
       try {
-        const { signOut } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
         await signOut(window.firebaseAuth);
         showToast('로그아웃되었습니다.');
         toggleDrawer(false);
-      } catch(err) {
-        console.error(err);
-      }
+      } catch(err) {}
     }
 
     function escapeHtml(str) {
