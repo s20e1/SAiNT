@@ -234,21 +234,15 @@
 
         <div id="nav-group-emr" class="space-y-1 hidden">
           <div class="px-2 text-xs font-bold text-toss-subtext uppercase tracking-wider mb-2">보건/응급 메뉴</div>
-          <button onclick="switchView('dashboard'); switchEMRSubMode('CHART');" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
-            <span>환자 차트 관리</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">SOAP</span>
-          </button>
-          <button onclick="switchView('dashboard'); switchEMRSubMode('NOTE');" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-            응급 의료 노트
+          <button onclick="switchView('dashboard')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-between">
+            <span>응급 기록 목록</span>
+            <span class="text-xs px-2.5 py-0.5 rounded-full bg-toss-lightRed text-toss-red font-bold">메인</span>
           </button>
           <button onclick="openWritePane('응급')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-            새 기록/차트 작성
-          </button>
-          <button onclick="openPatientModal()" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-            + 신규 환자(대상자) 등록
+            새 응급 기록 작성
           </button>
           <button onclick="switchView('ice')" class="w-full text-left px-3.5 py-3 rounded-2xl font-semibold text-sm hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-            내 응급 참고 프로필
+            응급 참고 프로필 설정
           </button>
         </div>
 
@@ -281,18 +275,6 @@
     <!-- Main Content Area -->
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
 
-      <!-- EMR Sub-Tab Bar (Only visible in EMR mode on dashboard) -->
-      <div id="emr-subtab-container" class="mb-6 hidden">
-        <div class="flex gap-2 p-1.5 toss-card rounded-2xl">
-          <button onclick="switchEMRSubMode('CHART')" id="btn-subtab-chart" class="flex-1 py-3 text-xs font-bold rounded-xl bg-toss-lightRed text-toss-red transition shadow-sm flex items-center justify-center gap-1.5">
-            <span>🩺 환자/대상자 차트 관리 (SOAP)</span>
-          </button>
-          <button onclick="switchEMRSubMode('NOTE')" id="btn-subtab-note" class="flex-1 py-3 text-xs font-bold rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition flex items-center justify-center gap-1.5">
-            <span>📝 일반 응급 의료 노트</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Top Toolbar -->
       <section id="global-toolbar" class="mb-6 toss-card p-4 rounded-3xl space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-3">
         <div class="flex-1 flex flex-col sm:flex-row items-center gap-2.5">
@@ -323,38 +305,33 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
             <div>
-              <div id="stat-label-1" class="text-xs font-bold text-toss-subtext">전체 기록</div>
+              <div class="text-xs font-bold text-toss-subtext">전체 기록</div>
               <div id="stat-total-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
             </div>
-            <div id="stat-badge-1" class="w-12 h-12 rounded-2xl bg-toss-lightBlue text-toss-blue font-bold flex items-center justify-center text-sm">건</div>
+            <div class="w-12 h-12 rounded-2xl bg-toss-lightBlue text-toss-blue font-bold flex items-center justify-center text-sm">건</div>
           </div>
 
           <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
             <div>
-              <div id="stat-label-2" class="text-xs font-bold text-toss-subtext">중요 고정</div>
+              <div class="text-xs font-bold text-toss-subtext">중요 고정</div>
               <div id="stat-fav-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
             </div>
-            <div id="stat-badge-2" class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 font-bold flex items-center justify-center text-sm">고정</div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 dark:bg-amber-950/40 font-bold flex items-center justify-center text-sm">고정</div>
           </div>
 
           <div class="toss-card p-6 rounded-3xl flex items-center justify-between">
             <div>
-              <div id="stat-label-3" class="text-xs font-bold text-toss-subtext">첨부 파일</div>
+              <div class="text-xs font-bold text-toss-subtext">첨부 파일</div>
               <div id="stat-file-count" class="text-3xl font-extrabold tracking-tight mt-1">0</div>
             </div>
-            <div id="stat-badge-3" class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 font-bold flex items-center justify-center text-sm">파일</div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 font-bold flex items-center justify-center text-sm">파일</div>
           </div>
         </div>
 
         <div class="toss-card p-6 sm:p-8 rounded-3xl">
           <div class="flex items-center justify-between mb-6">
             <h3 id="dashboard-list-title" class="text-xl font-bold tracking-tight">저장된 기록</h3>
-            <div class="flex items-center gap-2">
-              <button id="btn-add-patient-quick" onclick="openPatientModal()" class="toss-button px-3.5 py-2 text-xs font-bold rounded-xl bg-toss-lightRed text-toss-red hidden">
-                + 환자 등록
-              </button>
-              <span class="text-xs font-semibold text-toss-subtext">최신순</span>
-            </div>
+            <span class="text-xs font-semibold text-toss-subtext">최신순</span>
           </div>
 
           <div id="notes-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -362,8 +339,8 @@
           </div>
 
           <div id="notes-empty-state" class="py-16 text-center text-toss-subtext hidden space-y-2">
-            <p class="text-base font-bold text-toss-text dark:text-white">등록된 항목이 없습니다.</p>
-            <p class="text-xs">새 기록 또는 환자 차트를 추가해보세요.</p>
+            <p class="text-base font-bold text-toss-text dark:text-white">등록된 기록이 없습니다.</p>
+            <p class="text-xs">상단의 '+ 새 기록 작성' 버튼을 눌러 첫 기록을 추가해보세요.</p>
           </div>
         </div>
       </section>
@@ -374,7 +351,7 @@
           <div class="flex items-center justify-between border-b border-toss-border dark:border-toss-darkBorder pb-5">
             <div>
               <h3 id="write-form-title" class="text-2xl font-bold tracking-tight">새 기록 작성</h3>
-              <p id="write-form-subtitle" class="text-xs text-toss-subtext mt-1">학습 노트 및 보건 기록을 작성합니다.</p>
+              <p class="text-xs text-toss-subtext mt-1">학습 노트 및 응급 보건 기록을 작성합니다.</p>
             </div>
             <span id="autosave-badge" class="text-xs px-3 py-1 rounded-full bg-toss-bg dark:bg-toss-darkBg text-toss-subtext font-semibold">
               임시 저장 비활성
@@ -384,8 +361,7 @@
           <form id="form-record" onsubmit="handleSaveRecord(event)" class="space-y-5">
             <input type="hidden" id="reg-id" value="">
 
-            <!-- Standard Category/Favorite Select -->
-            <div id="section-standard-meta" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">카테고리</label>
                 <select id="reg-category" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
@@ -404,53 +380,19 @@
               </div>
             </div>
 
-            <!-- SOAP Chart Specific Patient Selector -->
-            <div id="section-patient-select" class="hidden space-y-4 p-5 rounded-2xl bg-toss-lightRed/30 border border-toss-red/20">
-              <div class="flex items-center justify-between">
-                <label class="block text-xs font-bold text-toss-red">대상 환자 선택</label>
-                <button type="button" onclick="openPatientModal()" class="text-xs font-bold text-toss-red hover:underline">+ 신규 환자 등록</button>
-              </div>
-              <select id="reg-patient-id" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-white dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-red transition">
-                <!-- Dynamic patient options -->
-              </select>
-            </div>
-
-            <!-- Vitals Grid (SOAP Mode) -->
-            <div id="section-vitals" class="hidden space-y-3 p-5 rounded-2xl bg-toss-bg dark:bg-toss-darkBg">
-              <label class="block text-xs font-bold text-toss-subtext">바이탈 사인 (Vital Signs)</label>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">체온 (°C)</span>
-                  <input type="text" id="vital-temp" placeholder="36.5" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
-                </div>
-                <div>
-                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">혈압 (mmHg)</span>
-                  <input type="text" id="vital-bp" placeholder="120/80" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
-                </div>
-                <div>
-                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">맥박 (bpm)</span>
-                  <input type="text" id="vital-hr" placeholder="72" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
-                </div>
-                <div>
-                  <span class="block text-[11px] font-bold text-toss-subtext mb-1">혈당 (mg/dL)</span>
-                  <input type="text" id="vital-bs" placeholder="95" class="w-full px-3.5 py-3 text-xs rounded-xl bg-white dark:bg-toss-darkCard border-none">
-                </div>
-              </div>
-            </div>
-
             <div>
-              <label id="label-reg-title" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">제목</label>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">제목</label>
               <input type="text" id="reg-title" required oninput="triggerAutoSave()" placeholder="제목을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition">
             </div>
 
-            <div id="group-summary-field">
-              <label id="label-reg-summary" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">핵심 요약 / 주관적 증상 (Subjective)</label>
-              <textarea id="reg-summary" rows="2" oninput="triggerAutoSave()" placeholder="주요 내용 요약 또는 환자 호소 증상" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
+            <div>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">핵심 요약</label>
+              <textarea id="reg-summary" rows="2" oninput="triggerAutoSave()" placeholder="주요 내용 요약" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
             </div>
 
             <div>
-              <label id="label-reg-details" class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상세 내용 / 평가 및 처치 (Assessment & Plan)</label>
-              <textarea id="reg-details" rows="6" oninput="triggerAutoSave()" placeholder="세부 내용 또는 평가 및 응급 처치 내용" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
+              <label class="block text-xs font-bold text-toss-subtext mb-1.5 pl-1">상세 내용</label>
+              <textarea id="reg-details" rows="6" oninput="triggerAutoSave()" placeholder="세부 내용을 입력하세요" class="w-full px-4 py-3.5 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg text-toss-text dark:text-white border-none focus:outline-none focus:ring-2 focus:ring-toss-blue transition resize-y"></textarea>
             </div>
 
             <div class="p-5 rounded-2xl bg-toss-bg dark:bg-toss-darkBg space-y-2">
@@ -465,7 +407,7 @@
               <button type="button" onclick="switchView('dashboard')" class="toss-button px-6 py-3.5 text-sm font-bold rounded-2xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition">
                 취소
               </button>
-              <button type="submit" id="btn-save-submit" class="toss-button px-7 py-3.5 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm">
+              <button type="submit" class="toss-button px-7 py-3.5 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm">
                 저장하기
               </button>
             </div>
@@ -478,8 +420,8 @@
         <div class="toss-card p-6 sm:p-8 rounded-3xl space-y-6">
           <div class="border-b border-toss-border dark:border-toss-darkBorder pb-5">
             <span class="px-3 py-1 text-xs font-bold rounded-full bg-toss-lightRed text-toss-red">응급 전용</span>
-            <h3 class="text-2xl font-bold tracking-tight text-toss-red dark:text-toss-red mt-2">내 응급 참고 프로필 설정</h3>
-            <p class="text-xs text-toss-subtext mt-1">응급 상황 시 전달할 본인의 주요 의료 정보를 등록합니다.</p>
+            <h3 class="text-2xl font-bold tracking-tight text-toss-red dark:text-toss-red mt-2">응급 참고 프로필 설정</h3>
+            <p class="text-xs text-toss-subtext mt-1">응급 상황 시 전달할 주요 의료 정보를 등록합니다.</p>
           </div>
 
           <form id="form-ice-profile" onsubmit="handleSaveICEProfile(event)" class="space-y-4">
@@ -704,18 +646,13 @@
       </div>
 
       <div class="space-y-4 text-sm leading-relaxed">
-        <div id="detail-modal-vitals-zone" class="p-4 rounded-2xl bg-toss-lightRed/20 border border-toss-red/20 hidden">
-          <div class="text-xs font-bold text-toss-red mb-2">바이탈 사인 측정 기록</div>
-          <div id="detail-modal-vitals-content" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold"></div>
-        </div>
-
         <div class="p-4 rounded-2xl bg-toss-bg dark:bg-toss-darkBg">
-          <div id="detail-summary-label" class="text-xs font-bold text-toss-subtext mb-1">핵심 요약</div>
+          <div class="text-xs font-bold text-toss-subtext mb-1">핵심 요약</div>
           <div id="detail-modal-summary" class="font-bold">요약 내용</div>
         </div>
 
         <div>
-          <div id="detail-details-label" class="text-xs font-bold text-toss-subtext mb-1">상세 내용</div>
+          <div class="text-xs font-bold text-toss-subtext mb-1">상세 내용</div>
           <div id="detail-modal-details" class="whitespace-pre-wrap text-toss-text dark:text-white">상세 내용이 표시됩니다.</div>
         </div>
 
@@ -743,10 +680,876 @@
     </div>
   </div>
 
-  <!-- MODAL: Patient Register -->
-  <div id="patient-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
+  <!-- MODAL: Supply Item Add -->
+  <div id="supply-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity flex items-center justify-center p-4">
     <div class="toss-card max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-toss-border dark:border-toss-darkBorder pb-3">
-        <h3 class="text-lg font-bold">신규 환자(대상자) 등록</h3>
-        <button onclick="closePatientModal()" class="p-1 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0
+        <h3 class="text-lg font-bold">새 물품 등록</h3>
+        <button onclick="closeAddSupplyModal()" class="p-1 rounded-xl text-toss-subtext hover:bg-toss-bg dark:hover:bg-toss-darkBg transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="form-add-supply" onsubmit="handleAddSupplySubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-toss-subtext mb-1">품목명</label>
+          <input type="text" id="supp-name" required placeholder="구급 소독약" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-toss-subtext mb-1">분류</label>
+          <input type="text" id="supp-cat" required placeholder="보건용품" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-toss-subtext mb-1">초기 수량</label>
+            <input type="number" id="supp-qty" required value="10" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-toss-subtext mb-1">최소 필요 수량</label>
+            <input type="number" id="supp-min" required value="5" class="w-full px-4 py-3 text-sm rounded-2xl bg-toss-bg dark:bg-toss-darkBg border-none focus:outline-none focus:ring-2 focus:ring-toss-blue">
+          </div>
+        </div>
+        <button type="submit" class="toss-button w-full py-3.5 text-sm font-bold rounded-2xl bg-toss-blue text-white hover:bg-toss-blueHover transition shadow-sm mt-2">
+          저장하기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Popups -->
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-toss-text dark:bg-white text-white dark:text-toss-text text-xs sm:text-sm font-bold px-6 py-3.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-200 flex items-center gap-2">
+    <span id="toast-message">알림 메시지</span>
+  </div>
+
+  <div id="printable-area" class="hidden"></div>
+
+  <!-- Firebase Scripts Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged,
+      signOut,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+      GoogleAuthProvider,
+      signInWithPopup
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      collection, 
+      onSnapshot, 
+      query 
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Your provided Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeRYQvFTL4l0KciQ1znIxO6dKPLdsdzpU",
+      authDomain: "saints021011.firebaseapp.com",
+      projectId: "saints021011",
+      storageBucket: "saints021011.firebasestorage.app",
+      messagingSenderId: "900966825477",
+      appId: "1:900966825477:web:0d5878d6f78318e1b2a66c",
+      measurementId: "G-RD9MVZSKKH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = "integrated-app-v1";
+
+    window.state = {
+      user: null,
+      currentMode: 'STUDY',
+      notes: [],
+      iceProfile: null,
+      supplies: [
+        { id: '1', name: '구급 소독약', category: '보건용품', qty: 8, minQty: 3 },
+        { id: '2', name: '학습 메모지', category: '학습자재', qty: 2, minQty: 5 }
+      ],
+      filterCategory: 'ALL',
+      searchQuery: '',
+      favoritesOnly: false,
+      activeDetailItem: null,
+      autoSaveTimer: null,
+      isAuthSignUp: false
+    };
+
+    function initAuth() {
+      onAuthStateChanged(auth, (user) => {
+        window.state.user = user;
+        const authScreen = document.getElementById('auth-screen');
+        const mainApp = document.getElementById('main-app');
+
+        if (user) {
+          authScreen.classList.add('opacity-0', 'pointer-events-none');
+          mainApp.classList.remove('hidden');
+          updateUserUI();
+          subscribeFirestoreData();
+        } else {
+          authScreen.classList.remove('opacity-0', 'pointer-events-none');
+          mainApp.classList.add('hidden');
+          updateUserUI();
+        }
+      });
+    }
+
+    function updateUserUI() {
+      const user = window.state.user;
+      const emailElem = document.getElementById('drawer-user-email');
+      const idElem = document.getElementById('drawer-user-id');
+
+      if (user) {
+        if (emailElem) emailElem.textContent = user.email || user.displayName || '구글 사용자';
+        if (idElem) idElem.textContent = 'ID: ' + user.uid.substring(0, 10) + '...';
+      }
+    }
+
+    function subscribeFirestoreData() {
+      const user = window.state.user;
+      if (!user) return;
+
+      const userId = user.uid;
+      const notesCol = collection(db, 'artifacts', appId, 'users', userId, 'notes');
+      const iceDocRef = doc(db, 'artifacts', appId, 'users', userId, 'iceProfile', 'main');
+      const suppliesCol = collection(db, 'artifacts', appId, 'users', userId, 'supplies');
+
+      onSnapshot(query(notesCol), (snapshot) => {
+        const fetchedNotes = [];
+        snapshot.forEach((docSnap) => {
+          fetchedNotes.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        window.state.notes = fetchedNotes;
+        renderDashboardNotes();
+        renderStats();
+      }, (err) => console.log('Notes error:', err));
+
+      onSnapshot(iceDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          window.state.iceProfile = docSnap.data();
+          populateICEProfileForm();
+        }
+      }, (err) => console.log('ICE error:', err));
+
+      onSnapshot(query(suppliesCol), (snapshot) => {
+        if (!snapshot.empty) {
+          const fetchedSupplies = [];
+          snapshot.forEach((docSnap) => {
+            fetchedSupplies.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          window.state.supplies = fetchedSupplies;
+          renderSuppliesTable();
+        } else {
+          renderSuppliesTable();
+        }
+      }, (err) => console.log('Supplies error:', err));
+    }
+
+    // Google Auth Handler
+    window.handleGoogleAuth = async function() {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        showToast('구글 계정으로 로그인되었습니다.');
+      } catch (err) {
+        alert('구글 로그인 오류: ' + err.message);
+      }
+    };
+
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseAppId = appId;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAuth();
+      renderDashboardNotes();
+      renderSuppliesTable();
+      renderStats();
+    });
+  </script>
+
+  <script>
+    function switchView(paneName) {
+      const panes = ['dashboard', 'write', 'ice', 'supplies', 'templates', 'stats', 'csv'];
+      
+      panes.forEach(pane => {
+        const elem = document.getElementById('pane-' + pane);
+        if (elem) {
+          if (pane === paneName) elem.classList.remove('hidden');
+          else elem.classList.add('hidden');
+        }
+      });
+
+      const toolbar = document.getElementById('global-toolbar');
+      if (toolbar) {
+        if (paneName === 'dashboard') toolbar.classList.remove('hidden');
+        else toolbar.classList.add('hidden');
+      }
+
+      toggleDrawer(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleServiceMode() {
+      const badge = document.getElementById('current-mode-badge');
+      const studyGroup = document.getElementById('nav-group-study');
+      const emrGroup = document.getElementById('nav-group-emr');
+
+      if (window.state.currentMode === 'STUDY') {
+        window.state.currentMode = 'EMR';
+        badge.textContent = '보건/응급 관리 모드';
+        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightRed text-toss-red border border-toss-red/10';
+        
+        if (studyGroup) studyGroup.classList.add('hidden');
+        if (emrGroup) emrGroup.classList.remove('hidden');
+
+        showToast('보건/응급 관리 모드로 전환되었습니다.');
+      } else {
+        window.state.currentMode = 'STUDY';
+        badge.textContent = '학습 정리 모드';
+        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-toss-lightBlue text-toss-blue border border-toss-blue/10';
+        
+        if (studyGroup) studyGroup.classList.remove('hidden');
+        if (emrGroup) emrGroup.classList.add('hidden');
+
+        showToast('학습 정리 모드로 전환되었습니다.');
+      }
+
+      renderDashboardNotes();
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      showToast(isDark ? '다크 모드로 전환되었습니다.' : '라이트 모드로 전환되었습니다.');
+    }
+
+    function toggleDrawer(open) {
+      const drawer = document.getElementById('nav-drawer');
+      const overlay = document.getElementById('drawer-overlay');
+      
+      if (open) {
+        overlay.classList.remove('opacity-0', 'pointer-events-none');
+        drawer.classList.remove('translate-x-full');
+      } else {
+        overlay.classList.add('opacity-0', 'pointer-events-none');
+        drawer.classList.add('translate-x-full');
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgElem = document.getElementById('toast-message');
+      msgElem.textContent = message;
+      
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function handleSearchFilter() {
+      const searchInput = document.getElementById('input-search');
+      const categorySelect = document.getElementById('select-category-filter');
+      
+      window.state.searchQuery = searchInput.value.trim().toLowerCase();
+      window.state.filterCategory = categorySelect.value;
+      
+      renderDashboardNotes();
+    }
+
+    function toggleFavoritesFilter() {
+      window.state.favoritesOnly = !window.state.favoritesOnly;
+      const btnText = document.getElementById('fav-filter-text');
+      btnText.textContent = window.state.favoritesOnly ? '전체 보기' : '고정 항목만 보기';
+      renderDashboardNotes();
+    }
+
+    function renderDashboardNotes() {
+      const container = document.getElementById('notes-grid-container');
+      const emptyState = document.getElementById('notes-empty-state');
+      if (!container) return;
+
+      let notes = window.state.notes || [];
+
+      if (window.state.currentMode === 'STUDY') {
+        notes = notes.filter(n => n.category === '학습 노트' || n.category === '일반 메모');
+      } else {
+        notes = notes.filter(n => n.category === '응급 및 보건');
+      }
+
+      if (window.state.filterCategory !== 'ALL') {
+        notes = notes.filter(n => n.category === window.state.filterCategory);
+      }
+      if (window.state.searchQuery) {
+        const q = window.state.searchQuery;
+        notes = notes.filter(n => 
+          (n.title && n.title.toLowerCase().includes(q)) || 
+          (n.summary && n.summary.toLowerCase().includes(q)) ||
+          (n.details && n.details.toLowerCase().includes(q))
+        );
+      }
+      if (window.state.favoritesOnly) {
+        notes = notes.filter(n => n.favorite === true || n.favorite === 'true');
+      }
+
+      notes.sort((a, b) => {
+        if ((b.favorite === true || b.favorite === 'true') - (a.favorite === true || a.favorite === 'true')) return 1;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      document.getElementById('stat-total-count').textContent = window.state.notes.length;
+      document.getElementById('stat-fav-count').textContent = window.state.notes.filter(n => n.favorite === true || n.favorite === 'true').length;
+      document.getElementById('stat-file-count').textContent = window.state.notes.filter(n => n.fileData).length;
+
+      container.innerHTML = '';
+
+      if (notes.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      notes.forEach(note => {
+        const isFav = note.favorite === true || note.favorite === 'true';
+        const card = document.createElement('div');
+        card.className = 'toss-card p-6 rounded-3xl hover:shadow-md transition flex flex-col justify-between cursor-pointer space-y-4';
+        card.onclick = () => openDetailModal(note);
+
+        card.innerHTML = `
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-bold px-3 py-1 rounded-full ${
+                note.category === '응급 및 보건' ? 'bg-toss-lightRed text-toss-red' : 'bg-toss-lightBlue text-toss-blue'
+              }">${escapeHtml(note.category)}</span>
+              ${isFav ? '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-600 dark:bg-amber-950/40">고정됨</span>' : ''}
+            </div>
+
+            <h4 class="font-bold text-lg line-clamp-1 tracking-tight">${escapeHtml(note.title)}</h4>
+            <p class="text-xs text-toss-subtext line-clamp-2 leading-relaxed">${escapeHtml(note.summary || note.details || '내용 없음')}</p>
+          </div>
+
+          <div class="pt-3 border-t border-toss-border dark:border-toss-darkBorder flex items-center justify-between text-xs text-toss-subtext">
+            <span>${note.dateStr || '최근 작성'}</span>
+            ${note.fileData ? '<span class="font-bold text-toss-blue">[첨부파일]</span>' : ''}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openWritePane(defaultCategory) {
+      document.getElementById('form-record').reset();
+      document.getElementById('reg-id').value = '';
+      document.getElementById('write-form-title').textContent = '새 기록 작성';
+      document.getElementById('file-attached-info').classList.add('hidden');
+
+      if (defaultCategory) {
+        const catSelect = document.getElementById('reg-category');
+        if (defaultCategory === '응급') catSelect.value = '응급 및 보건';
+        else catSelect.value = '학습 노트';
+      }
+
+      checkDraftAndPrompt();
+      switchView('write');
+    }
+
+    function triggerAutoSave() {
+      const title = document.getElementById('reg-title').value;
+      const details = document.getElementById('reg-details').value;
+      
+      clearTimeout(window.state.autoSaveTimer);
+      window.state.autoSaveTimer = setTimeout(() => {
+        if (title || details) {
+          localStorage.setItem('app_record_draft', JSON.stringify({ title, details }));
+          document.getElementById('autosave-badge').textContent = '임시 저장됨';
+        }
+      }, 1000);
+    }
+
+    function checkDraftAndPrompt() {
+      const draftStr = localStorage.getItem('app_record_draft');
+      if (draftStr) {
+        try {
+          const draft = JSON.parse(draftStr);
+          if (draft.title || draft.details) {
+            document.getElementById('reg-title').value = draft.title || '';
+            document.getElementById('reg-details').value = draft.details || '';
+            document.getElementById('autosave-badge').textContent = '작성중 문서 복구됨';
+          }
+        } catch(e) {}
+      }
+    }
+
+    async function handleSaveRecord(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('reg-id').value;
+      const category = document.getElementById('reg-category').value;
+      const favorite = document.getElementById('reg-favorite').value === 'true';
+      const title = document.getElementById('reg-title').value;
+      const summary = document.getElementById('reg-summary').value;
+      const details = document.getElementById('reg-details').value;
+      const fileInput = document.getElementById('reg-file');
+
+      let fileData = null;
+
+      if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        fileData = await convertFileToBase64(file);
+      }
+
+      const recordObj = {
+        category,
+        favorite,
+        title,
+        summary,
+        details,
+        dateStr: new Date().toLocaleDateString('ko-KR'),
+        createdAt: Date.now()
+      };
+
+      if (fileData) recordObj.fileData = fileData;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb) {
+        try {
+          const { collection, addDoc, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          const notesCol = collection(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes');
+
+          if (id) {
+            await updateDoc(doc(notesCol, id), recordObj);
+          } else {
+            await addDoc(notesCol, recordObj);
+          }
+        } catch(err) {
+          console.error('Firestore 저장 오류:', err);
+        }
+      }
+
+      localStorage.removeItem('app_record_draft');
+      showToast('저장되었습니다.');
+      switchView('dashboard');
+    }
+
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({
+          name: file.name,
+          url: reader.result
+        });
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    async function handleSaveICEProfile(e) {
+      e.preventDefault();
+      const profile = {
+        name: document.getElementById('ice-name').value,
+        idNumber: document.getElementById('ice-id').value,
+        bloodType: document.getElementById('ice-blood').value,
+        contact: document.getElementById('ice-contact').value,
+        allergies: document.getElementById('ice-allergy').value,
+        diseases: document.getElementById('ice-disease').value
+      };
+
+      window.state.iceProfile = profile;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb) {
+        try {
+          const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          const iceDocRef = doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'iceProfile', 'main');
+          await setDoc(iceDocRef, profile);
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      showToast('응급 프로필이 업데이트되었습니다.');
+    }
+
+    function populateICEProfileForm() {
+      const p = window.state.iceProfile;
+      if (!p) return;
+      document.getElementById('ice-name').value = p.name || '';
+      document.getElementById('ice-id').value = p.idNumber || '';
+      document.getElementById('ice-blood').value = p.bloodType || '';
+      document.getElementById('ice-contact').value = p.contact || '';
+      document.getElementById('ice-allergy').value = p.allergies || '';
+      document.getElementById('ice-disease').value = p.diseases || '';
+    }
+
+    function openDetailModal(note) {
+      window.state.activeDetailItem = note;
+      document.getElementById('detail-modal-category').textContent = note.category;
+      document.getElementById('detail-modal-title').textContent = note.title;
+      document.getElementById('detail-modal-date').textContent = note.dateStr || '작성일 정보 없음';
+      document.getElementById('detail-modal-summary').textContent = note.summary || '요약 없음';
+      document.getElementById('detail-modal-details').textContent = note.details || '상세 내용 없음';
+
+      const fileZone = document.getElementById('detail-modal-file-zone');
+      const fileLink = document.getElementById('detail-modal-file-link');
+
+      if (note.fileData) {
+        fileZone.classList.remove('hidden');
+        fileLink.textContent = note.fileData.name + ' (열기)';
+        fileLink.href = note.fileData.url;
+      } else {
+        fileZone.classList.add('hidden');
+      }
+
+      const modal = document.getElementById('detail-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeDetailModal() {
+      const modal = document.getElementById('detail-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    async function handleDeleteCurrentDetail() {
+      const item = window.state.activeDetailItem;
+      if (!item) return;
+
+      const user = window.state.user;
+      if (user && window.firebaseDb && !item.id.startsWith('local_')) {
+        try {
+          const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+          await deleteDoc(doc(window.firebaseDb, 'artifacts', window.firebaseAppId, 'users', user.uid, 'notes', item.id));
+        } catch(err) {
+          console.error(err);
+        }
+      }
+
+      window.state.notes = window.state.notes.filter(n => n.id !== item.id);
+      showToast('삭제되었습니다.');
+      closeDetailModal();
+      renderDashboardNotes();
+      renderStats();
+    }
+
+    function handleEditCurrentDetail() {
+      const item = window.state.activeDetailItem;
+      if (!item) return;
+
+      closeDetailModal();
+      openWritePane();
+
+      document.getElementById('reg-id').value = item.id;
+      document.getElementById('reg-category').value = item.category;
+      document.getElementById('reg-favorite').value = item.favorite ? 'true' : 'false';
+      document.getElementById('reg-title').value = item.title;
+      document.getElementById('reg-summary').value = item.summary || '';
+      document.getElementById('reg-details').value = item.details || '';
+      document.getElementById('write-form-title').textContent = '기록 수정';
+
+      if (item.fileData) {
+        const fileInfo = document.getElementById('file-attached-info');
+        fileInfo.textContent = '기존 첨부파일: ' + item.fileData.name;
+        fileInfo.classList.remove('hidden');
+      }
+    }
+
+    function renderSuppliesTable() {
+      const tbody = document.getElementById('supplies-table-body');
+      const alertBox = document.getElementById('supplies-low-alert');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      let hasLowStock = false;
+
+      window.state.supplies.forEach(item => {
+        if (item.qty <= item.minQty) hasLowStock = true;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-toss-bg dark:hover:bg-toss-darkBg transition';
+
+        tr.innerHTML = `
+          <td class="py-4 px-4 font-bold text-toss-text dark:text-white">${escapeHtml(item.name)}</td>
+          <td class="py-4 px-4 text-toss-subtext">${escapeHtml(item.category)}</td>
+          <td class="py-4 px-4">
+            <span class="font-extrabold ${item.qty <= item.minQty ? 'text-toss-red' : ''}">${item.qty}개</span>
+          </td>
+          <td class="py-4 px-4 text-toss-subtext">${item.minQty}개</td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="adjustSupplyQty('${item.id}', -1)" class="toss-button px-3 py-1.5 text-xs font-bold rounded-xl bg-toss-bg dark:bg-toss-darkBg hover:bg-toss-border/60 transition">-1</button>
+              <button onclick="adjustSupplyQty('${item.id}', 5)" class="toss-button px-3 py-1.5 text-xs font-bold rounded-xl bg-toss-lightBlue text-toss-blue transition">+5</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (hasLowStock && alertBox) alertBox.classList.remove('hidden');
+      else if (alertBox) alertBox.classList.add('hidden');
+    }
+
+    function adjustSupplyQty(id, amount) {
+      const item = window.state.supplies.find(s => s.id === id);
+      if (item) {
+        item.qty = Math.max(0, item.qty + amount);
+        renderSuppliesTable();
+        showToast(item.name + ' 수량이 조정되었습니다.');
+      }
+    }
+
+    function openAddSupplyModal() {
+      const modal = document.getElementById('supply-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeAddSupplyModal() {
+      const modal = document.getElementById('supply-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function handleAddSupplySubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('supp-name').value;
+      const category = document.getElementById('supp-cat').value;
+      const qty = parseInt(document.getElementById('supp-qty').value, 10);
+      const minQty = parseInt(document.getElementById('supp-min').value, 10);
+
+      window.state.supplies.push({
+        id: 'supp_' + Date.now(),
+        name,
+        category,
+        qty,
+        minQty
+      });
+
+      closeAddSupplyModal();
+      renderSuppliesTable();
+      showToast('새 물품이 추가되었습니다.');
+    }
+
+    function applyTemplate(type) {
+      openWritePane();
+      const titleInput = document.getElementById('reg-title');
+      const detailsInput = document.getElementById('reg-details');
+
+      if (type === 'cornell') {
+        titleInput.value = '학습 코넬 정리 - [주제]';
+        detailsInput.value = `[핵심 키워드]\n- 키워드 1:\n- 키워드 2:\n\n[상세 내용]\n1. 주제 내용\n\n[요약 및 질문]\n- 요약:`;
+      } else if (type === 'incident') {
+        titleInput.value = '응급 조치 일지';
+        document.getElementById('reg-category').value = '응급 및 보건';
+        detailsInput.value = `[발생 상황]\n- 시각:\n- 장소:\n\n[증상 요약]\n- 주요 경과:\n\n[조치 내용]\n- 실시 내용:`;
+      } else if (type === 'meeting') {
+        titleInput.value = '회의 요약 노트';
+        detailsInput.value = `[회의 안건]\n- 안건 내용:\n\n[결정 사항]\n- 실행 계획:`;
+      }
+    }
+
+    function renderStats() {
+      const notes = window.state.notes || [];
+      const total = notes.length || 1;
+
+      const studyCount = notes.filter(n => n.category === '학습 노트').length;
+      const emrCount = notes.filter(n => n.category === '응급 및 보건').length;
+      const generalCount = notes.filter(n => n.category === '일반 메모').length;
+
+      document.getElementById('stat-bar-study-val').textContent = `${studyCount}건 (${Math.round((studyCount/total)*100)}%)`;
+      document.getElementById('stat-bar-study').style.width = `${Math.round((studyCount/total)*100)}%`;
+
+      document.getElementById('stat-bar-emr-val').textContent = `${emrCount}건 (${Math.round((emrCount/total)*100)}%)`;
+      document.getElementById('stat-bar-emr').style.width = `${Math.round((emrCount/total)*100)}%`;
+
+      document.getElementById('stat-bar-general-val').textContent = `${generalCount}건 (${Math.round((generalCount/total)*100)}%)`;
+      document.getElementById('stat-bar-general').style.width = `${Math.round((generalCount/total)*100)}%`;
+
+      document.getElementById('stat-metrics-total').textContent = notes.length + '건';
+      document.getElementById('stat-metrics-files').textContent = notes.filter(n => n.fileData).length + '건';
+      document.getElementById('stat-metrics-favs').textContent = notes.filter(n => n.favorite).length + '건';
+    }
+
+    function exportToCSV() {
+      const notes = window.state.notes || [];
+      if (notes.length === 0) {
+        showToast('내보낼 데이터가 없습니다.');
+        return;
+      }
+
+      let csvContent = "\uFEFF카테고리,제목,요약,작성일\n";
+      notes.forEach(n => {
+        const cat = `"${(n.category || '').replace(/"/g, '""')}"`;
+        const title = `"${(n.title || '').replace(/"/g, '""')}"`;
+        const summary = `"${(n.summary || '').replace(/"/g, '""')}"`;
+        const date = `"${n.dateStr || ''}"`;
+        csvContent += `${cat},${title},${summary},${date}\n`;
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `backup_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('CSV 다운로드가 완료되었습니다.');
+    }
+
+    function importFromCSV() {
+      const fileInput = document.getElementById('csv-file-input');
+      if (!fileInput.files || !fileInput.files[0]) {
+        showToast('CSV 파일을 선택해주세요.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target.result;
+        const lines = text.split('\n');
+        let addedCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const cols = lines[i].split(',');
+          if (cols.length >= 2) {
+            const cat = cols[0].replace(/"/g, '').trim() || '일반 메모';
+            const title = cols[1].replace(/"/g, '').trim() || '가져온 항목';
+            const summary = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
+
+            window.state.notes.push({
+              id: 'csv_' + Date.now() + '_' + i,
+              category: cat,
+              title: title,
+              summary: summary,
+              details: summary,
+              dateStr: new Date().toLocaleDateString('ko-KR'),
+              createdAt: Date.now()
+            });
+            addedCount++;
+          }
+        }
+
+        renderDashboardNotes();
+        renderStats();
+        showToast(`${addedCount}건의 데이터가 등록되었습니다.`);
+      };
+      reader.readAsText(fileInput.files[0], 'UTF-8');
+    }
+
+    function triggerPrintReport() {
+      const printContainer = document.getElementById('printable-area');
+      const notes = window.state.notes || [];
+
+      let html = `
+        <div style="padding: 24px; font-family: sans-serif;">
+          <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 6px;">통합 기록 플랫폼 보고서</h1>
+          <p style="font-size: 12px; color: #666; margin-bottom: 24px;">출력일시: ${new Date().toLocaleString('ko-KR')}</p>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+            <thead>
+              <tr style="background: #f2f4f6;">
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">분류</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">제목</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">요약</th>
+                <th style="border: 1px solid #e5e8eb; padding: 10px;">작성일</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      notes.forEach(n => {
+        html += `
+          <tr>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.category)}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px; font-weight: bold;">${escapeHtml(n.title)}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${escapeHtml(n.summary || '')}</td>
+            <td style="border: 1px solid #e5e8eb; padding: 10px;">${n.dateStr || ''}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table></div>`;
+      printContainer.innerHTML = html;
+      window.print();
+    }
+
+    function toggleAuthMode() {
+      window.state.isAuthSignUp = !window.state.isAuthSignUp;
+      const title = document.getElementById('auth-screen-title');
+      const sub = document.getElementById('auth-screen-sub');
+      const submitBtn = document.getElementById('btn-auth-submit');
+      const toggleBtn = document.getElementById('btn-auth-toggle');
+
+      if (window.state.isAuthSignUp) {
+        title.textContent = '회원가입';
+        sub.textContent = '서비스 이용을 위해 신규 계정을 만드세요.';
+        submitBtn.textContent = '가입하기';
+        toggleBtn.textContent = '기존 계정으로 로그인';
+      } else {
+        title.textContent = '로그인이 필요합니다';
+        sub.textContent = '서비스 이용을 위해 계정에 로그인해주세요.';
+        submitBtn.textContent = '로그인하기';
+        toggleBtn.textContent = '신규 회원가입';
+      }
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      const password = document.getElementById('auth-password').value;
+
+      try {
+        if (window.state.isAuthSignUp) {
+          const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+          await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
+          showToast('회원가입이 완료되었습니다.');
+        } else {
+          const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+          await signInWithEmailAndPassword(window.firebaseAuth, email, password);
+          showToast('로그인되었습니다.');
+        }
+      } catch(err) {
+        alert('인증 오류: ' + err.message);
+      }
+    }
+
+    async function handlePasswordReset() {
+      const email = document.getElementById('auth-email').value;
+      if (!email) {
+        alert('이메일을 입력한 후 누르세요.');
+        return;
+      }
+      try {
+        const { sendPasswordResetEmail } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        await sendPasswordResetEmail(window.firebaseAuth, email);
+        showToast('비밀번호 재설정 이메일이 발송되었습니다.');
+      } catch(err) {
+        alert('오류: ' + err.message);
+      }
+    }
+
+    async function handleLogout() {
+      try {
+        const { signOut } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        await signOut(window.firebaseAuth);
+        showToast('로그아웃되었습니다.');
+        toggleDrawer(false);
+      } catch(err) {
+        console.error(err);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
