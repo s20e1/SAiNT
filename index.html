@@ -73,17 +73,17 @@
         </div>
     </div>
 
-    <!-- Firebase SDK Imports -->
+    <!-- Firebase SDK Imports (Google Auth Removed) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         window.appState = {
             user: null,
             db: null,
             auth: null,
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'saint-health-v3',
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'saint-health-v4',
             records: [],
             inventory: [],
             currentTab: 'logs',
@@ -110,7 +110,7 @@
             onAuthStateChanged(window.appState.auth, (user) => {
                 if (user) {
                     window.appState.user = user;
-                    document.getElementById('user-email-display').innerText = user.email || user.displayName || '구글 로그인 사용자';
+                    document.getElementById('user-email-display').innerText = user.email || '인증된 사용자';
                     document.getElementById('login-modal').classList.add('hidden');
                     initDataListeners();
                 } else {
@@ -149,27 +149,6 @@
                 }
             } catch (err) {
                 showToast("인증 오류: " + err.message, 'error');
-            } finally {
-                showLoading(false);
-            }
-        };
-
-        window.handleGoogleLogin = async () => {
-            showLoading(true);
-            try {
-                if (window.appState.auth) {
-                    const provider = new GoogleAuthProvider();
-                    await signInWithPopup(window.appState.auth, provider);
-                    showToast('구글 계정으로 로그인되었습니다.', 'success');
-                } else {
-                    window.appState.user = { uid: 'google-mock', email: 'google.user@gmail.com' };
-                    document.getElementById('user-email-display').innerText = '구글 로그인 사용자';
-                    document.getElementById('login-modal').classList.add('hidden');
-                    loadEmptyData();
-                    showToast('구글 계정으로 로그인되었습니다.', 'success');
-                }
-            } catch (err) {
-                showToast("구글 로그인 실패: " + err.message, 'error');
             } finally {
                 showLoading(false);
             }
@@ -484,7 +463,7 @@
         </div>
     </div>
 
-    <!-- LOGIN & REGISTER MODAL (With Google Auth) -->
+    <!-- LOGIN & REGISTER MODAL (Email/Password Only) -->
     <div id="login-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
         <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-4">
             <div class="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center mx-auto text-xl font-bold">
@@ -495,19 +474,7 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">스마트 보건 차트 및 재고 시스템</p>
             </div>
 
-            <!-- Google Login Button -->
-            <button type="button" onclick="handleGoogleLogin()" class="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2 shadow-xs">
-                <i class="fa-brands fa-google text-rose-500"></i>
-                <span>Google 계정으로 로그인</span>
-            </button>
-
-            <div class="relative flex py-1 items-center">
-                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-                <span class="flex-shrink mx-3 text-[11px] text-slate-400">또는 이메일로 계속하기</span>
-                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-            </div>
-
-            <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs text-left">
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs text-left pt-1">
                 <div>
                     <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">이메일</label>
                     <input type="email" id="auth-email" required placeholder="saint@school.kr" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
@@ -516,7 +483,7 @@
                     <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">비밀번호</label>
                     <input type="password" id="auth-password" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
                 </div>
-                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-800 transition shadow-sm mt-1">
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-800 transition shadow-sm mt-2">
                     로그인
                 </button>
             </form>
