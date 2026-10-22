@@ -275,12 +275,12 @@
 
         function getDefaultInventory() {
             return [
-                { id: 'inv-1', kit: '포터블 구급가방', name: '혼합 대일밴드', category: '드레싱', count: 30, minCount: 10, unit: '개' },
-                { id: 'inv-2', kit: '포터블 구급가방', name: '소독용 포비돈 면봉', category: '소독액', count: 15, minCount: 5, unit: '개' },
-                { id: 'inv-3', kit: '포터블 구급가방', name: '멸균 가제 (7.5cm)', category: '드레싱', count: 20, minCount: 5, unit: '팩' },
-                { id: 'inv-4', kit: '특수 구급가방', name: '탄력 압박붕대', category: '고정용품', count: 4, minCount: 2, unit: '개' },
-                { id: 'inv-5', kit: '특수 구급가방', name: '휴대용 산소포화도 측정기', category: '장비', count: 1, minCount: 1, unit: '대' },
-                { id: 'inv-6', kit: '특수 구급가방', name: '자동제세동기(AED) 패드', category: '응급장비', count: 2, minCount: 1, unit: '세트' }
+                { id: 'inv-1', kit: '포터블 구급가방', name: '혼합 대일밴드', category: '드레싱', type: 'consumable', count: 30, minCount: 10, unit: '개' },
+                { id: 'inv-2', kit: '포터블 구급가방', name: '소독용 포비돈 면봉', category: '소독액', type: 'consumable', count: 15, minCount: 5, unit: '개' },
+                { id: 'inv-3', kit: '포터블 구급가방', name: '멸균 가제 (7.5cm)', category: '드레싱', type: 'consumable', count: 20, minCount: 5, unit: '팩' },
+                { id: 'inv-4', kit: '특수 구급가방', name: '탄력 압박붕대', category: '고정용품', type: 'consumable', count: 4, minCount: 2, unit: '개' },
+                { id: 'inv-5', kit: '특수 구급가방', name: '휴대용 산소포화도 측정기', category: '장비', type: 'non-consumable', count: 1, minCount: 1, unit: '대' },
+                { id: 'inv-6', kit: '특수 구급가방', name: '자동제세동기(AED) 패드', category: '응급장비', type: 'consumable', count: 2, minCount: 1, unit: '세트' }
             ];
         }
 
@@ -413,7 +413,7 @@
                                 <th class="px-4 py-3 font-semibold">구급가방</th>
                                 <th class="px-4 py-3 font-semibold">품목명</th>
                                 <th class="px-4 py-3 font-semibold">분류</th>
-                                <th class="px-4 py-3 font-semibold">현재 수량 (직접 수정)</th>
+                                <th class="px-4 py-3 font-semibold">현재 수량 및 상태</th>
                                 <th class="px-4 py-3 font-semibold text-right">관리 및 조절</th>
                             </tr>
                         </thead>
@@ -501,7 +501,7 @@
 
     <!-- INVENTORY MODAL -->
     <div id="modal-inventory" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4">
             <h3 class="text-base font-bold text-slate-900 dark:text-white">신규 물품 등록</h3>
             <div class="space-y-3 text-xs">
                 <div>
@@ -511,9 +511,30 @@
                         <option value="특수 구급가방">🚨 특수 구급가방</option>
                     </select>
                 </div>
-                <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">품목명</label><input type="text" id="inv-name" placeholder="예: 소독용 면봉, 의료용 테이프" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
+
+                <!-- 물품 유형 선택 라디오 버튼 -->
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1.5">물품 유형 *</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer">
+                            <input type="radio" name="inv-type" value="consumable" checked onchange="handleInventoryTypeChange(this.value)" class="text-slate-900 w-3.5 h-3.5">
+                            <span class="font-medium">소모품(갯수)</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer">
+                            <input type="radio" name="inv-type" value="non-consumable" onchange="handleInventoryTypeChange(this.value)" class="text-slate-900 w-3.5 h-3.5">
+                            <span class="font-medium">비소모품</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer">
+                            <input type="radio" name="inv-type" value="uncountable" onchange="handleInventoryTypeChange(this.value)" class="text-slate-900 w-3.5 h-3.5">
+                            <span class="font-medium">셀수없는 소모품</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">품목명 *</label><input type="text" id="inv-name" placeholder="예: 소독용 면봉, 의료용 테이프" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
                 <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">분류</label><input type="text" id="inv-cat" placeholder="예: 드레싱, 소독액" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
-                <div class="grid grid-cols-2 gap-2">
+                
+                <div id="inv-count-container" class="grid grid-cols-2 gap-2">
                     <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">수량</label><input type="number" id="inv-count" value="10" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
                     <div>
                         <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">단위</label>
@@ -762,7 +783,9 @@
             }
 
             body.innerHTML = items.map(item => {
-                const isLow = item.count <= item.minCount;
+                const isUncountable = item.type === 'uncountable';
+                const isLow = !isUncountable && item.count <= item.minCount;
+
                 return `
                     <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
                         <td class="px-4 py-3 font-medium text-xs text-slate-500 dark:text-slate-400">
@@ -770,18 +793,27 @@
                                 ${escapeHtml(item.kit || '공통')}
                             </span>
                         </td>
-                        <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">${escapeHtml(item.name)}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">
+                            ${escapeHtml(item.name)}
+                            ${item.type === 'non-consumable' ? '<span class="ml-1 text-[10px] px-1.5 py-0.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 rounded font-normal">비소모품</span>' : ''}
+                        </td>
                         <td class="px-4 py-3 text-slate-500 dark:text-slate-400">${escapeHtml(item.category)}</td>
                         <td class="px-4 py-3">
-                            <div class="flex items-center gap-2">
-                                <input type="number" value="${item.count}" onchange="directUpdateInventoryCount('${item.id}', this.value)" class="w-20 p-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold ${isLow ? 'text-rose-600' : 'text-slate-800 dark:text-slate-200'}">
-                                <span class="text-xs text-slate-500">${item.unit || ''}</span>
-                                ${isLow ? `<span class="text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 px-1.5 py-0.5 rounded-full font-semibold">부족</span>` : ''}
-                            </div>
+                            ${isUncountable ? `
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">상시 비치 (수량 미관리)</span>
+                            ` : `
+                                <div class="flex items-center gap-2">
+                                    <input type="number" value="${item.count}" onchange="directUpdateInventoryCount('${item.id}', this.value)" class="w-20 p-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold ${isLow ? 'text-rose-600' : 'text-slate-800 dark:text-slate-200'}">
+                                    <span class="text-xs text-slate-500">${item.unit || ''}</span>
+                                    ${isLow ? `<span class="text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 px-1.5 py-0.5 rounded-full font-semibold">부족</span>` : ''}
+                                </div>
+                            `}
                         </td>
                         <td class="px-4 py-3 text-right space-x-1">
-                            <button onclick="updateInventoryCount('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 감소">-1</button>
-                            <button onclick="updateInventoryCount('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 증가">+1</button>
+                            ${!isUncountable ? `
+                                <button onclick="updateInventoryCount('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 감소">-1</button>
+                                <button onclick="updateInventoryCount('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 증가">+1</button>
+                            ` : ''}
                             <button onclick="deleteInventoryItem('${item.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition inline-flex items-center justify-center ml-1" title="물품 삭제"><i class="fa-regular fa-trash-can text-xs"></i></button>
                         </td>
                     </tr>
@@ -897,13 +929,30 @@
             const modal = document.getElementById('modal-record');
             if (modal) modal.classList.add('hidden'); 
         }
+
         function openAddInventoryModal() { 
             const modal = document.getElementById('modal-inventory');
-            if (modal) modal.classList.remove('hidden'); 
+            if (modal) {
+                document.getElementById('inv-name').value = '';
+                document.getElementById('inv-cat').value = '';
+                document.getElementById('inv-count').value = '10';
+                document.querySelector('input[name="inv-type"][value="consumable"]').checked = true;
+                handleInventoryTypeChange('consumable');
+                modal.classList.remove('hidden'); 
+            }
         }
         function closeInventoryModal() { 
             const modal = document.getElementById('modal-inventory');
             if (modal) modal.classList.add('hidden'); 
+        }
+
+        function handleInventoryTypeChange(type) {
+            const countContainer = document.getElementById('inv-count-container');
+            if (type === 'uncountable') {
+                countContainer.classList.add('hidden');
+            } else {
+                countContainer.classList.remove('hidden');
+            }
         }
 
         async function handleSaveRecord(e) {
@@ -969,14 +1018,14 @@
 
         async function updateInventoryCount(id, delta) {
             const item = window.appState.inventory.find(i => i.id === id);
-            if (!item) return;
+            if (!item || item.type === 'uncountable') return;
             item.count = Math.max(0, item.count + delta);
             syncInventory(item);
         }
 
         async function directUpdateInventoryCount(id, val) {
             const item = window.appState.inventory.find(i => i.id === id);
-            if (!item) return;
+            if (!item || item.type === 'uncountable') return;
             item.count = Math.max(0, parseInt(val) || 0);
             syncInventory(item);
         }
@@ -1022,12 +1071,13 @@
             const kit = document.getElementById('inv-kit').value;
             const name = document.getElementById('inv-name').value.trim();
             const category = document.getElementById('inv-cat').value.trim() || '소모품';
-            const count = parseInt(document.getElementById('inv-count').value) || 10;
-            const unit = document.getElementById('inv-unit').value;
+            const type = document.querySelector('input[name="inv-type"]:checked').value;
+            const count = type === 'uncountable' ? 0 : (parseInt(document.getElementById('inv-count').value) || 10);
+            const unit = type === 'uncountable' ? '' : document.getElementById('inv-unit').value;
             if (!name) return;
 
             showLoading(true);
-            const newItem = { id: 'inv-' + Date.now(), kit, name, category, count, minCount: 5, unit };
+            const newItem = { id: 'inv-' + Date.now(), kit, name, category, type, count, minCount: 5, unit };
             
             if (window.appState.user && window.appState.db) {
                 try {
