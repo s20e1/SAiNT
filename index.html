@@ -241,7 +241,10 @@
                 });
                 window.appState.records = logs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 renderApp();
-            }, (err) => { console.error(err); });
+            }, (err) => { 
+                console.error("Logs Snapshot Error:", err); 
+                showToast("DB 권한 오류: Firestore 보안 규칙을 확인하세요.", "error");
+            });
 
             // Inventory Realtime Listener
             const invRef = collection(window.appState.db, 'artifacts', appId, 'users', uid, 'inventory');
@@ -251,20 +254,23 @@
                     inv.push({ id: docSnap.id, ...docSnap.data() });
                 });
 
-                // 계정 최초 생성시에만 샘플 기본 물품을 생성
                 if (snapshot.empty && !window.appState.inventoryInitialized) {
                     window.appState.inventoryInitialized = true;
                     const defaultItems = getDefaultInventory();
                     window.appState.inventory = defaultItems;
                     for (const item of defaultItems) {
-                        await setDoc(doc(window.appState.db, 'artifacts', appId, 'users', uid, 'inventory', item.id), item);
+                        try {
+                            await setDoc(doc(window.appState.db, 'artifacts', appId, 'users', uid, 'inventory', item.id), item);
+                        } catch(e) { console.error(e); }
                     }
                 } else {
                     window.appState.inventoryInitialized = true;
                     window.appState.inventory = inv;
                 }
                 renderApp();
-            }, (err) => { console.error(err); });
+            }, (err) => { 
+                console.error("Inventory Snapshot Error:", err); 
+            });
         }
 
         function getDefaultInventory() {
@@ -924,16 +930,18 @@
                     const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     const docRef = doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', newRecord.id);
                     await setDoc(docRef, newRecord);
+                    showToast('새로운 차트가 저장되었습니다.', 'success');
                 } catch (err) {
-                    showToast('서버 저장 중 오류가 발생했습니다.', 'error');
+                    console.error(err);
+                    showToast('서버 저장 실패: 보안 규칙을 확인하세요.', 'error');
                 }
             } else {
                 window.appState.records.unshift(newRecord);
+                showToast('새로운 차트가 등록되었습니다.', 'success');
             }
             showLoading(false);
             closeRecordModal();
             renderApp();
-            showToast('새로운 차트가 성공적으로 등록되었습니다.', 'success');
         }
 
         async function deleteRecord(id) {
@@ -946,7 +954,8 @@
                     await deleteDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', id));
                     showToast('차트가 삭제되었습니다.', 'info');
                 } catch (err) {
-                    showToast('삭제 중 오류가 발생했습니다.', 'error');
+                    console.error(err);
+                    showToast('삭제 실패: Firestore 권한을 확인하세요.', 'error');
                 } finally {
                     showLoading(false);
                 }
@@ -977,23 +986,27 @@
                 try {
                     const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     await setDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', item.id), item);
-                } catch (err) {}
+                    showToast('수량이 수정되었습니다.', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('저장 실패: Firestore 권한 문제', 'error');
+                }
             }
             renderApp();
-            showToast('재고 수량이 수정되었습니다.', 'success');
         }
 
         async function deleteInventoryItem(id) {
-            if (!confirm('해당 물품을 재고 목록에서 삭제하시겠습니까?')) return;
+            if (!confirm('해당 물품을 재고 목록에서 완전히 삭제하시겠습니까?')) return;
             showLoading(true);
 
             if (window.appState.user && window.appState.db) {
                 try {
                     const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     await deleteDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', id));
-                    showToast('물품이 삭제되었습니다.', 'info');
+                    showToast('물품이 DB에서 완전히 삭제되었습니다.', 'info');
                 } catch (err) {
-                    showToast('물품 삭제 중 오류가 발생했습니다.', 'error');
+                    console.error(err);
+                    showToast('물품 삭제 실패: Firestore 권한 문제', 'error');
                 } finally {
                     showLoading(false);
                 }
@@ -1020,14 +1033,18 @@
                 try {
                     const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
                     await setDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', newItem.id), newItem);
-                } catch (err) {}
+                    showToast('새 물품이 추가되었습니다.', 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('추가 실패: Firestore 권한 문제', 'error');
+                }
             } else {
                 window.appState.inventory.push(newItem);
+                showToast('새 물품이 등록되었습니다.', 'success');
             }
             showLoading(false);
             closeInventoryModal();
             renderApp();
-            showToast('새 물품이 등록되었습니다.', 'success');
         }
 
         function toggleDarkMode() {
