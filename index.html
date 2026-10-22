@@ -222,4 +222,802 @@
         };
 
         function initDataListeners() {
-            if
+            if (!window.appState.user || !window.appState.db) {
+                loadEmptyData();
+                return;
+            }
+
+            const uid = window.appState.user.uid;
+            const appId = window.appState.appId;
+
+            const logsRef = collection(window.appState.db, 'artifacts', appId, 'users', uid, 'health_logs');
+            onSnapshot(logsRef, (snapshot) => {
+                const logs = [];
+                snapshot.forEach(docSnap => {
+                    logs.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                window.appState.records = logs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                renderApp();
+            }, (err) => { loadEmptyData(); });
+
+            const invRef = collection(window.appState.db, 'artifacts', appId, 'users', uid, 'inventory');
+            onSnapshot(invRef, (snapshot) => {
+                const inv = [];
+                snapshot.forEach(docSnap => {
+                    inv.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                window.appState.inventory = inv.length ? inv : getDefaultInventory();
+                renderApp();
+            }, (err) => {
+                if (window.appState.inventory.length === 0) window.appState.inventory = getDefaultInventory();
+                renderApp();
+            });
+        }
+
+        function getDefaultInventory() {
+            return [
+                { id: 'inv-1', kit: '포터블 구급가방', name: '혼합 대일밴드', category: '드레싱', count: 30, minCount: 10, unit: '개' },
+                { id: 'inv-2', kit: '포터블 구급가방', name: '소독용 포비돈 면봉', category: '소독액', count: 15, minCount: 5, unit: '개' },
+                { id: 'inv-3', kit: '포터블 구급가방', name: '멸균 가제 (7.5cm)', category: '드레싱', count: 20, minCount: 5, unit: '팩' },
+                { id: 'inv-4', kit: '특수 구급가방', name: '탄력 압박붕대', category: '고정용품', count: 4, minCount: 2, unit: '개' },
+                { id: 'inv-5', kit: '특수 구급가방', name: '휴대용 산소포화도 측정기', category: '장비', count: 1, minCount: 1, unit: '대' },
+                { id: 'inv-6', kit: '특수 구급가방', name: '자동제세동기(AED) 패드', category: '응급장비', count: 2, minCount: 1, unit: '세트' }
+            ];
+        }
+
+        function loadEmptyData() {
+            window.appState.records = [];
+            window.appState.inventory = getDefaultInventory();
+            renderApp();
+        }
+    </script>
+
+    <!-- UI Container -->
+    <div id="app" class="max-w-4xl mx-auto px-4 py-6 md:px-8">
+
+        <!-- Header -->
+        <header class="flex items-center justify-between pb-6 mb-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-lg font-bold shadow-sm">
+                    <i class="fa-solid font-normal fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        SAiNT
+                        <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">스마트 보건 시스템</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">구급가방별 재고 및 차트 관리 솔루션</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleDarkMode()" class="p-2.5 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <i id="dark-icon" class="fa-solid fa-moon text-base"></i>
+                </button>
+                <div class="hidden md:flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl">
+                    <span id="user-email-display">게스트</span>
+                    <button onclick="handleLogout()" class="text-rose-500 hover:underline ml-1 font-semibold">로그아웃</button>
+                </div>
+                <button onclick="openNewRecordModal()" class="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>차트 기록</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex space-x-1 mb-6 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
+            <button onclick="switchTab('logs')" id="tab-logs" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition text-slate-900 dark:text-white bg-white dark:bg-slate-800 shadow-sm">
+                <i class="fa-solid fa-address-book mr-1.5 opacity-70"></i> 통합 처치 차트
+            </button>
+            <button onclick="switchTab('stats')" id="tab-stats" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                <i class="fa-solid fa-chart-pie mr-1.5 opacity-70"></i> 통계 분석
+            </button>
+            <button onclick="switchTab('inventory')" id="tab-inventory" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
+                <i class="fa-solid fa-briefcase-medical mr-1.5 opacity-70"></i> 구급가방 재고
+            </button>
+        </div>
+
+        <!-- TAB CONTENT: LOGS -->
+        <div id="view-logs" class="tab-content space-y-4">
+            <div class="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200/80 dark:border-slate-800 flex flex-col md:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="이름 검색 (예: 홍길동 차트 모아보기)..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition">
+                </div>
+
+                <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+                    <button onclick="setCategoryFilter('all')" class="cat-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 dark:bg-white text-white dark:text-slate-900">전체</button>
+                    <button onclick="setCategoryFilter('외상')" class="cat-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">외상</button>
+                    <button onclick="setCategoryFilter('내상')" class="cat-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">내상</button>
+                    <button onclick="setCategoryFilter('기타')" class="cat-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">기타</button>
+                </div>
+            </div>
+
+            <div id="search-notice" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 p-3 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+                <span id="search-notice-text">특정 학생 검색 결과</span>
+                <button onclick="clearSearchFilter()" class="underline font-semibold hover:text-emerald-900">전체 목록 보기</button>
+            </div>
+
+            <div id="records-list" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB CONTENT: STATISTICS -->
+        <div id="view-stats" class="tab-content hidden space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">총 처치 건수</div>
+                    <div class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white" id="stat-total-count">0건</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">최다 발생 유형</div>
+                    <div class="text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400 mt-1" id="stat-top-category">-</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">방문 학생 수 (중복 제외)</div>
+                    <div class="text-3xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400" id="stat-unique-students">0명</div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-5 shadow-xs">
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-bar text-slate-400"></i>
+                    유형별 발생 비율
+                </h3>
+                <div id="stats-breakdown-list" class="space-y-4 text-xs"></div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: INVENTORY -->
+        <div id="view-inventory" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-base font-bold text-slate-900 dark:text-white">구급가방 재고 관리</h2>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs">
+                    <button onclick="setKitFilter('all')" class="kit-filter-btn px-3 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-900 shadow-xs text-slate-900 dark:text-white">전체 가방</button>
+                    <button onclick="setKitFilter('포터블 구급가방')" class="kit-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900">🧳 포터블 가방</button>
+                    <button onclick="setKitFilter('특수 구급가방')" class="kit-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900">🚨 특수 가방</button>
+                </div>
+
+                <button onclick="openAddInventoryModal()" class="text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-2 rounded-xl font-semibold transition self-start sm:self-auto">
+                    + 물품 등록
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50 text-xs text-slate-500 uppercase border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">구급가방</th>
+                                <th class="px-4 py-3 font-semibold">품목명</th>
+                                <th class="px-4 py-3 font-semibold">분류</th>
+                                <th class="px-4 py-3 font-semibold">현재 수량 (직접 수정)</th>
+                                <th class="px-4 py-3 font-semibold text-right">관리 및 조절</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CREATE RECORD MODAL -->
+    <div id="modal-record" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white">SAiNT 차트 신규 작성</h3>
+                <button onclick="closeRecordModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="record-form" onsubmit="handleSaveRecord(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">학생 이름 *</label>
+                        <input type="text" id="input-name" required placeholder="예: 홍길동" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">학반 (선택)</label>
+                        <input type="text" id="input-class" placeholder="예: 3학년 2반" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">분류 *</label>
+                        <select id="input-category" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
+                            <option value="외상">외상</option>
+                            <option value="내상">내상</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">사용 구급가방</label>
+                        <select id="input-kit" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
+                            <option value="포터블 구급가방">🧳 포터블 구급가방</option>
+                            <option value="특수 구급가방">🚨 특수 구급가방</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl space-y-2 border border-slate-200/60 dark:border-slate-700/50">
+                    <span class="font-semibold text-slate-600 dark:text-slate-400 block mb-1">바이탈 사인 측정 (필요시 체크)</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2 text-xs">
+                        <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" id="check-temp" onchange="toggleVitalInput('temp')" class="rounded w-4 h-4 text-slate-900"> 체온</label>
+                        <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" id="check-bp" onchange="toggleVitalInput('bp')" class="rounded w-4 h-4 text-slate-900"> 혈압</label>
+                        <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" id="check-spo2" onchange="toggleVitalInput('spo2')" class="rounded w-4 h-4 text-slate-900"> 산소포화도</label>
+                        <label class="flex items-center gap-1.5 cursor-pointer font-medium"><input type="checkbox" id="check-hr" onchange="toggleVitalInput('hr')" class="rounded w-4 h-4 text-slate-900"> 심박수</label>
+                    </div>
+                    <div id="vitals-inputs" class="grid grid-cols-2 gap-3 hidden pt-1">
+                        <div id="box-temp" class="hidden"><label class="text-slate-500 dark:text-slate-400 block mb-1">체온 (°C)</label><input type="text" id="input-temp" placeholder="36.5" class="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></div>
+                        <div id="box-bp" class="hidden"><label class="text-slate-500 dark:text-slate-400 block mb-1">혈압</label><input type="text" id="input-bp" placeholder="120/80" class="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></div>
+                        <div id="box-spo2" class="hidden"><label class="text-slate-500 dark:text-slate-400 block mb-1">산소포화도 (%)</label><input type="text" id="input-spo2" placeholder="98" class="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></div>
+                        <div id="box-hr" class="hidden"><label class="text-slate-500 dark:text-slate-400 block mb-1">심박수 (bpm)</label><input type="text" id="input-hr" placeholder="75" class="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">증상 및 사유 *</label>
+                    <textarea id="input-symptom" rows="2" required placeholder="증상을 적어주세요" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">처치 내용 *</label>
+                    <textarea id="input-treatment" rows="2" required placeholder="처치 내용을 적어주세요" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="closeRecordModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-medium">취소</button>
+                    <button type="submit" class="px-5 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-semibold shadow-xs">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- INVENTORY MODAL -->
+    <div id="modal-inventory" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-4">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white">신규 물품 등록</h3>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">구급가방 선택 *</label>
+                    <select id="inv-kit" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                        <option value="포터블 구급가방">🧳 포터블 구급가방</option>
+                        <option value="특수 구급가방">🚨 특수 구급가방</option>
+                    </select>
+                </div>
+                <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">품목명</label><input type="text" id="inv-name" placeholder="예: 소독용 면봉, 의료용 테이프" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
+                <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">분류</label><input type="text" id="inv-cat" placeholder="예: 드레싱, 소독액" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">수량</label><input type="number" id="inv-count" value="10" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"></div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">단위</label>
+                        <select id="inv-unit" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            <option value="">단위 없음</option>
+                            <option value="개" selected>개</option>
+                            <option value="팩">팩</option>
+                            <option value="대">대</option>
+                            <option value="세트">세트</option>
+                            <option value="롤">롤</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeInventoryModal()" class="px-4 py-2 text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl">취소</button>
+                <button onclick="saveInventoryItem()" class="px-4 py-2 text-xs bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-semibold">추가</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIN & REGISTER MODAL (With Google Auth) -->
+    <div id="login-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center mx-auto text-xl font-bold">
+                <i class="fa-solid fa-heart-pulse"></i>
+            </div>
+            <div>
+                <h2 id="auth-mode-title" class="text-lg font-bold text-slate-900 dark:text-white">SAiNT 로그인</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">스마트 보건 차트 및 재고 시스템</p>
+            </div>
+
+            <!-- Google Login Button -->
+            <button type="button" onclick="handleGoogleLogin()" class="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2 shadow-xs">
+                <i class="fa-brands fa-google text-rose-500"></i>
+                <span>Google 계정으로 로그인</span>
+            </button>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <span class="flex-shrink mx-3 text-[11px] text-slate-400">또는 이메일로 계속하기</span>
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs text-left">
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">이메일</label>
+                    <input type="email" id="auth-email" required placeholder="saint@school.kr" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">비밀번호</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-800 transition shadow-sm mt-1">
+                    로그인
+                </button>
+            </form>
+
+            <div id="auth-switch-text" class="text-xs text-slate-500 pt-1">
+                계정이 없으신가요? <button type="button" onclick="toggleAuthMode()" class="underline font-semibold text-slate-900 dark:text-white">회원가입</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+            let icon = 'fa-circle-check text-emerald-400';
+            
+            if (type === 'error') {
+                bgClass = 'bg-rose-600 text-white';
+                icon = 'fa-circle-exclamation text-white';
+            } else if (type === 'info') {
+                bgClass = 'bg-sky-600 text-white';
+                icon = 'fa-circle-info text-white';
+            }
+
+            toast.className = `toast-animate pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i><span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Loading Overlay System
+        function showLoading(isLoading) {
+            const overlay = document.getElementById('loading-overlay');
+            if (isLoading) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function renderApp() {
+            renderRecords();
+            renderStatistics();
+            renderInventory();
+        }
+
+        function renderRecords() {
+            const container = document.getElementById('records-list');
+            if (!container) return;
+            let items = [...window.appState.records];
+
+            const query = window.appState.searchQuery.toLowerCase().trim();
+            const noticeEl = document.getElementById('search-notice');
+            const noticeText = document.getElementById('search-notice-text');
+
+            if (query) {
+                items = items.filter(r => r.studentName.toLowerCase().includes(query));
+                noticeEl.classList.remove('hidden');
+                noticeText.innerText = `"${query}" 검색 결과: 총 ${items.length}건의 누적 차트`;
+            } else {
+                noticeEl.classList.add('hidden');
+            }
+
+            if (window.appState.filterCategory !== 'all') {
+                items = items.filter(r => r.category === window.appState.filterCategory);
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-slate-400">
+                        <i class="fa-solid fa-folder-open text-2xl mb-2"></i>
+                        <p class="text-xs">저장된 차트 기록이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = items.map(record => {
+                const dateObj = new Date(record.timestamp);
+                const timeStr = dateObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = dateObj.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs transition hover:border-slate-300 dark:hover:border-slate-700">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
+                                <button onclick="searchStudent('${escapeHtml(record.studentName)}')" class="font-bold text-sm text-slate-900 dark:text-white hover:underline flex items-center gap-1 group">
+                                    <span>${escapeHtml(record.studentName)}</span>
+                                    <i class="fa-solid fa-search text-[10px] text-slate-400 group-hover:text-slate-600"></i>
+                                </button>
+                                ${record.gradeClass ? `<span class="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">${escapeHtml(record.gradeClass)}</span>` : ''}
+                                <span class="text-xs px-2 py-0.5 rounded-md ${getCategoryBadge(record.category)}">${escapeHtml(record.category)}</span>
+                                ${record.kit ? `<span class="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">${escapeHtml(record.kit)}</span>` : ''}
+                            </div>
+                            <button onclick="deleteRecord('${record.id}')" class="p-1 text-slate-400 hover:text-rose-500 transition">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                        <div class="mt-3 space-y-1 text-xs">
+                            <div class="text-slate-700 dark:text-slate-300"><span class="font-semibold text-slate-900 dark:text-slate-100">증상:</span> ${escapeHtml(record.symptom)}</div>
+                            <div class="text-slate-600 dark:text-slate-400"><span class="font-semibold text-slate-800 dark:text-slate-200">처치:</span> ${escapeHtml(record.treatment)}</div>
+                        </div>
+
+                        <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-400">
+                            <div class="flex items-center gap-3 flex-wrap">
+                                ${record.temp ? `<span><i class="fa-solid fa-thermometer-half mr-1 text-rose-400"></i>${record.temp}℃</span>` : ''}
+                                ${record.bp ? `<span><i class="fa-solid fa-heart-pulse mr-1 text-indigo-400"></i>${record.bp}</span>` : ''}
+                                ${record.spo2 ? `<span><i class="fa-solid fa-lungs mr-1 text-sky-400"></i>SpO2 ${record.spo2}%</span>` : ''}
+                                ${record.hr ? `<span><i class="fa-solid fa-wave-square mr-1 text-emerald-400"></i>${record.hr}bpm</span>` : ''}
+                            </div>
+                            <div>${dateStr} ${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStatistics() {
+            const records = window.appState.records;
+            const totalCount = records.length;
+            const totalEl = document.getElementById('stat-total-count');
+            if (totalEl) totalEl.innerText = `${totalCount}건`;
+
+            const uniqueStudents = new Set(records.map(r => r.studentName.trim())).size;
+            const uniqueEl = document.getElementById('stat-unique-students');
+            if (uniqueEl) uniqueEl.innerText = `${uniqueStudents}명`;
+
+            const categories = ['외상', '내상', '기타'];
+            const counts = {};
+            categories.forEach(cat => counts[cat] = 0);
+
+            records.forEach(r => {
+                if (counts[r.category] !== undefined) counts[r.category]++;
+                else counts['기타'] = (counts['기타'] || 0) + 1;
+            });
+
+            let topCat = '-';
+            let maxVal = -1;
+            for (const [cat, val] of Object.entries(counts)) {
+                if (val > maxVal) { maxVal = val; topCat = cat; }
+            }
+            const topEl = document.getElementById('stat-top-category');
+            if (topEl) topEl.innerText = maxVal > 0 ? `${topCat} (${maxVal}건)` : '데이터 없음';
+
+            const breakdownContainer = document.getElementById('stats-breakdown-list');
+            if (!breakdownContainer) return;
+
+            if (totalCount === 0) {
+                breakdownContainer.innerHTML = `<p class="text-slate-400 text-center py-4">집계할 데이터가 없습니다.</p>`;
+                return;
+            }
+
+            breakdownContainer.innerHTML = categories.map(cat => {
+                const count = counts[cat];
+                const percent = Math.round((count / totalCount) * 100);
+                return `
+                    <div>
+                        <div class="flex justify-between font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                            <span>${cat}</span><span>${count}건 (${percent}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-slate-900 dark:bg-white h-full rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderInventory() {
+            const body = document.getElementById('inventory-table-body');
+            if (!body) return;
+            let items = [...window.appState.inventory];
+
+            if (window.appState.selectedKitFilter !== 'all') {
+                items = items.filter(i => i.kit === window.appState.selectedKitFilter);
+            }
+
+            if (items.length === 0) {
+                body.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-slate-400 text-xs">등록된 물품이 없습니다.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = items.map(item => {
+                const isLow = item.count <= item.minCount;
+                return `
+                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                        <td class="px-4 py-3 font-medium text-xs text-slate-500 dark:text-slate-400">
+                            <span class="px-2 py-0.5 rounded-md ${item.kit === '포터블 구급가방' ? 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300'} font-semibold">
+                                ${escapeHtml(item.kit || '공통')}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-slate-900 dark:text-white">${escapeHtml(item.name)}</td>
+                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400">${escapeHtml(item.category)}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <input type="number" value="${item.count}" onchange="directUpdateInventoryCount('${item.id}', this.value)" class="w-20 p-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg font-bold ${isLow ? 'text-rose-600' : 'text-slate-800 dark:text-slate-200'}">
+                                <span class="text-xs text-slate-500">${item.unit || ''}</span>
+                                ${isLow ? `<span class="text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 px-1.5 py-0.5 rounded-full font-semibold">부족</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-right space-x-1">
+                            <button onclick="updateInventoryCount('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 감소">-1</button>
+                            <button onclick="updateInventoryCount('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition font-bold" title="수량 1 증가">+1</button>
+                            <button onclick="deleteInventoryItem('${item.id}')" class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 hover:bg-rose-100 transition inline-flex items-center justify-center ml-1" title="물품 삭제"><i class="fa-regular fa-trash-can text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setKitFilter(kitName) {
+            window.appState.selectedKitFilter = kitName;
+            document.querySelectorAll('.kit-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-slate-900', 'shadow-xs', 'text-slate-900', 'dark:text-white', 'font-semibold');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400', 'font-medium');
+            });
+            if (event && event.target) {
+                event.target.classList.add('bg-white', 'dark:bg-slate-900', 'shadow-xs', 'text-slate-900', 'dark:text-white', 'font-semibold');
+                event.target.classList.remove('text-slate-600', 'dark:text-slate-400');
+            }
+            renderInventory();
+        }
+
+        function getCategoryBadge(cat) {
+            switch(cat) {
+                case '외상': return 'bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300';
+                case '내상': return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300';
+                default: return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function switchTab(tabId) {
+            window.appState.currentTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white', 'font-semibold');
+                btn.classList.add('text-slate-500', 'font-medium');
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white', 'dark:bg-slate-800', 'shadow-sm', 'text-slate-900', 'dark:text-white', 'font-semibold');
+                activeBtn.classList.remove('text-slate-500', 'font-medium');
+            }
+            document.querySelectorAll('.tab-content').forEach(view => view.classList.add('hidden'));
+            const viewTarget = document.getElementById(`view-${tabId}`);
+            if (viewTarget) viewTarget.classList.remove('hidden');
+        }
+
+        function handleSearch(val) { window.appState.searchQuery = val; renderRecords(); }
+        function searchStudent(name) { 
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = name; 
+            window.appState.searchQuery = name; 
+            switchTab('logs'); 
+            renderRecords(); 
+        }
+        function clearSearchFilter() { 
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = ''; 
+            window.appState.searchQuery = ''; 
+            renderRecords(); 
+        }
+
+        function setCategoryFilter(cat) {
+            window.appState.filterCategory = cat;
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-900', 'dark:bg-white', 'text-white', 'dark:text-slate-900', 'font-semibold');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300', 'font-medium');
+            });
+            if (event && event.target) {
+                event.target.classList.add('bg-slate-900', 'dark:bg-white', 'text-white', 'dark:text-slate-900', 'font-semibold');
+                event.target.classList.remove('text-slate-600', 'dark:text-slate-300');
+            }
+            renderRecords();
+        }
+
+        function toggleVitalInput(type) {
+            const checkbox = document.getElementById(`check-${type}`);
+            if (!checkbox) return;
+            const isChecked = checkbox.checked;
+            const box = document.getElementById(`box-${type}`);
+            const container = document.getElementById('vitals-inputs');
+            
+            if (isChecked) {
+                if (container) container.classList.remove('hidden');
+                if (box) box.classList.remove('hidden');
+            } else {
+                if (box) box.classList.add('hidden');
+                const inputVal = document.getElementById(`input-${type}`);
+                if (inputVal) inputVal.value = '';
+                const anyChecked = ['temp', 'bp', 'spo2', 'hr'].some(t => {
+                    const cb = document.getElementById(`check-${t}`);
+                    return cb && cb.checked;
+                });
+                if (!anyChecked && container) container.classList.add('hidden');
+            }
+        }
+
+        function openNewRecordModal() {
+            const form = document.getElementById('record-form');
+            if (form) form.reset();
+            const vitalsInput = document.getElementById('vitals-inputs');
+            if (vitalsInput) vitalsInput.classList.add('hidden');
+            ['temp', 'bp', 'spo2', 'hr'].forEach(t => {
+                const b = document.getElementById(`box-${t}`);
+                if (b) b.classList.add('hidden');
+            });
+            const modal = document.getElementById('modal-record');
+            if (modal) modal.classList.remove('hidden');
+        }
+        function closeRecordModal() { 
+            const modal = document.getElementById('modal-record');
+            if (modal) modal.classList.add('hidden'); 
+        }
+        function openAddInventoryModal() { 
+            const modal = document.getElementById('modal-inventory');
+            if (modal) modal.classList.remove('hidden'); 
+        }
+        function closeInventoryModal() { 
+            const modal = document.getElementById('modal-inventory');
+            if (modal) modal.classList.add('hidden'); 
+        }
+
+        async function handleSaveRecord(e) {
+            e.preventDefault();
+            showLoading(true);
+
+            const newRecord = {
+                id: 'doc-' + Date.now(),
+                studentName: document.getElementById('input-name').value.trim(),
+                gradeClass: document.getElementById('input-class').value.trim(),
+                category: document.getElementById('input-category').value,
+                kit: document.getElementById('input-kit').value,
+                temp: document.getElementById('check-temp').checked ? document.getElementById('input-temp').value.trim() : '',
+                bp: document.getElementById('check-bp').checked ? document.getElementById('input-bp').value.trim() : '',
+                spo2: document.getElementById('check-spo2').checked ? document.getElementById('input-spo2').value.trim() : '',
+                hr: document.getElementById('check-hr').checked ? document.getElementById('input-hr').value.trim() : '',
+                symptom: document.getElementById('input-symptom').value.trim(),
+                treatment: document.getElementById('input-treatment').value.trim(),
+                timestamp: new Date().toISOString()
+            };
+
+            window.appState.records.unshift(newRecord);
+            if (window.appState.user && window.appState.db) {
+                try {
+                    const docRef = doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', newRecord.id);
+                    await setDoc(docRef, newRecord);
+                } catch (err) {
+                    showToast('서버 저장 중 오류가 발생했습니다.', 'error');
+                }
+            }
+            showLoading(false);
+            closeRecordModal();
+            renderApp();
+            showToast('새로운 차트가 성공적으로 등록되었습니다.', 'success');
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('기록을 삭제하시겠습니까?')) return;
+            showLoading(true);
+
+            window.appState.records = window.appState.records.filter(r => r.id !== id);
+            if (window.appState.user && window.appState.db) {
+                try {
+                    await deleteDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', id));
+                } catch (err) {
+                    showToast('삭제 중 오류가 발생했습니다.', 'error');
+                }
+            }
+            showLoading(false);
+            renderApp();
+            showToast('차트가 삭제되었습니다.', 'info');
+        }
+
+        async function updateInventoryCount(id, delta) {
+            const item = window.appState.inventory.find(i => i.id === id);
+            if (!item) return;
+            item.count = Math.max(0, item.count + delta);
+            syncInventory(item);
+        }
+
+        async function directUpdateInventoryCount(id, val) {
+            const item = window.appState.inventory.find(i => i.id === id);
+            if (!item) return;
+            item.count = Math.max(0, parseInt(val) || 0);
+            syncInventory(item);
+        }
+
+        async function syncInventory(item) {
+            if (window.appState.user && window.appState.db) {
+                try {
+                    await setDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', item.id), item);
+                } catch (err) {}
+            }
+            renderApp();
+            showToast('재고 수량이 수정되었습니다.', 'success');
+        }
+
+        async function deleteInventoryItem(id) {
+            if (!confirm('해당 물품을 재고 목록에서 삭제하시겠습니까?')) return;
+            showLoading(true);
+
+            window.appState.inventory = window.appState.inventory.filter(i => i.id !== id);
+
+            if (window.appState.user && window.appState.db) {
+                try {
+                    await deleteDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', id));
+                    showToast('물품이 삭제되었습니다.', 'info');
+                } catch (err) {
+                    showToast('물품 삭제 중 오류가 발생했습니다.', 'error');
+                } finally {
+                    showLoading(false);
+                    renderApp();
+                }
+            } else {
+                showLoading(false);
+                renderApp();
+                showToast('물품이 삭제되었습니다.', 'info');
+            }
+        }
+
+        async function saveInventoryItem() {
+            const kit = document.getElementById('inv-kit').value;
+            const name = document.getElementById('inv-name').value.trim();
+            const category = document.getElementById('inv-cat').value.trim() || '소모품';
+            const count = parseInt(document.getElementById('inv-count').value) || 10;
+            const unit = document.getElementById('inv-unit').value;
+            if (!name) return;
+
+            showLoading(true);
+            const newItem = { id: 'inv-' + Date.now(), kit, name, category, count, minCount: 5, unit };
+            window.appState.inventory.push(newItem);
+            if (window.appState.user && window.appState.db) {
+                try {
+                    await setDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', newItem.id), newItem);
+                } catch (err) {}
+            }
+            showLoading(false);
+            closeInventoryModal();
+            renderApp();
+            showToast('새 물품이 등록되었습니다.', 'success');
+        }
+
+        function toggleDarkMode() {
+            window.appState.isDarkMode = !window.appState.isDarkMode;
+            const darkIcon = document.getElementById('dark-icon');
+            if (window.appState.isDarkMode) {
+                document.documentElement.classList.add('dark');
+                if (darkIcon) darkIcon.className = 'fa-solid fa-sun text-base text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                if (darkIcon) darkIcon.className = 'fa-solid fa-moon text-base';
+            }
+        }
+    </script>
+</body>
+</html>
