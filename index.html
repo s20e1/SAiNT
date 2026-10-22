@@ -51,21 +51,39 @@
         .dark ::-webkit-scrollbar-thumb {
             background: #475569;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toast-animate {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Global Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-xl flex items-center space-x-3 border border-slate-200 dark:border-slate-800">
+            <div class="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">처리 중입니다...</span>
+        </div>
+    </div>
+
     <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         window.appState = {
             user: null,
             db: null,
             auth: null,
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'saint-health-v2',
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'saint-health-v3',
             records: [],
             inventory: [],
             currentTab: 'logs',
@@ -89,11 +107,10 @@
             window.appState.auth = getAuth(app);
             window.appState.db = getFirestore(app);
 
-            // Auto Login State Persistence Listener
             onAuthStateChanged(window.appState.auth, (user) => {
                 if (user) {
                     window.appState.user = user;
-                    document.getElementById('user-email-display').innerText = user.email || '익명/간편 사용자';
+                    document.getElementById('user-email-display').innerText = user.email || user.displayName || '구글 로그인 사용자';
                     document.getElementById('login-modal').classList.add('hidden');
                     initDataListeners();
                 } else {
@@ -113,21 +130,48 @@
             const password = document.getElementById('auth-password').value;
             const isSignUp = document.getElementById('auth-mode-title').innerText.includes('회원가입');
 
+            showLoading(true);
             try {
                 if (window.appState.auth) {
                     if (isSignUp) {
                         await createUserWithEmailAndPassword(window.appState.auth, email, password);
+                        showToast('성공적으로 회원가입 및 등록되었습니다.', 'success');
                     } else {
                         await signInWithEmailAndPassword(window.appState.auth, email, password);
+                        showToast('성공적으로 로그인되었습니다.', 'success');
                     }
                 } else {
                     window.appState.user = { uid: 'local-user', email };
                     document.getElementById('user-email-display').innerText = email;
                     document.getElementById('login-modal').classList.add('hidden');
                     loadEmptyData();
+                    showToast('로컬 모드로 로그인되었습니다.', 'success');
                 }
             } catch (err) {
-                alert("인증 오류: " + err.message);
+                showToast("인증 오류: " + err.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.handleGoogleLogin = async () => {
+            showLoading(true);
+            try {
+                if (window.appState.auth) {
+                    const provider = new GoogleAuthProvider();
+                    await signInWithPopup(window.appState.auth, provider);
+                    showToast('구글 계정으로 로그인되었습니다.', 'success');
+                } else {
+                    window.appState.user = { uid: 'google-mock', email: 'google.user@gmail.com' };
+                    document.getElementById('user-email-display').innerText = '구글 로그인 사용자';
+                    document.getElementById('login-modal').classList.add('hidden');
+                    loadEmptyData();
+                    showToast('구글 계정으로 로그인되었습니다.', 'success');
+                }
+            } catch (err) {
+                showToast("구글 로그인 실패: " + err.message, 'error');
+            } finally {
+                showLoading(false);
             }
         };
 
@@ -152,6 +196,7 @@
             }
             window.appState.user = null;
             document.getElementById('login-modal').classList.remove('hidden');
+            showToast('로그아웃되었습니다.', 'info');
         };
 
         function initDataListeners() {
@@ -308,7 +353,6 @@
                     <h2 class="text-base font-bold text-slate-900 dark:text-white">구급가방 재고 관리</h2>
                 </div>
 
-                <!-- KIT FILTER BUTTONS -->
                 <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl text-xs">
                     <button onclick="setKitFilter('all')" class="kit-filter-btn px-3 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-900 shadow-xs text-slate-900 dark:text-white">전체 가방</button>
                     <button onclick="setKitFilter('포터블 구급가방')" class="kit-filter-btn px-3 py-1.5 rounded-lg font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900">🧳 포터블 가방</button>
@@ -440,15 +484,27 @@
         </div>
     </div>
 
-    <!-- LOGIN & REGISTER MODAL -->
+    <!-- LOGIN & REGISTER MODAL (With Google Auth) -->
     <div id="login-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-5">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center space-y-4">
             <div class="w-12 h-12 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center mx-auto text-xl font-bold">
                 <i class="fa-solid fa-heart-pulse"></i>
             </div>
             <div>
                 <h2 id="auth-mode-title" class="text-lg font-bold text-slate-900 dark:text-white">SAiNT 로그인</h2>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">스마트 보건 차트 및 재고 시스템</p>
+            </div>
+
+            <!-- Google Login Button -->
+            <button type="button" onclick="handleGoogleLogin()" class="w-full py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2 shadow-xs">
+                <i class="fa-brands fa-google text-rose-500"></i>
+                <span>Google 계정으로 로그인</span>
+            </button>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                <span class="flex-shrink mx-3 text-[11px] text-slate-400">또는 이메일로 계속하기</span>
+                <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
             </div>
 
             <form onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs text-left">
@@ -460,7 +516,7 @@
                     <label class="block font-semibold text-slate-700 dark:text-slate-300 mb-1">비밀번호</label>
                     <input type="password" id="auth-password" required placeholder="••••••••" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none">
                 </div>
-                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-800 transition shadow-sm mt-2">
+                <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-xl text-xs hover:bg-slate-800 transition shadow-sm mt-1">
                     로그인
                 </button>
             </form>
@@ -473,6 +529,44 @@
 
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-900 text-white dark:bg-white dark:text-slate-900';
+            let icon = 'fa-circle-check text-emerald-400';
+            
+            if (type === 'error') {
+                bgClass = 'bg-rose-600 text-white';
+                icon = 'fa-circle-exclamation text-white';
+            } else if (type === 'info') {
+                bgClass = 'bg-sky-600 text-white';
+                icon = 'fa-circle-info text-white';
+            }
+
+            toast.className = `toast-animate pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i><span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Loading Overlay System
+        function showLoading(isLoading) {
+            const overlay = document.getElementById('loading-overlay');
+            if (isLoading) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
         function renderApp() {
             renderRecords();
             renderStatistics();
@@ -596,7 +690,6 @@
             }).join('');
         }
 
-        // Inventory Render filtered by selected Kit
         function renderInventory() {
             const body = document.getElementById('inventory-table-body');
             let items = [...window.appState.inventory];
@@ -719,6 +812,8 @@
 
         async function handleSaveRecord(e) {
             e.preventDefault();
+            showLoading(true);
+
             const newRecord = {
                 id: 'doc-' + Date.now(),
                 studentName: document.getElementById('input-name').value.trim(),
@@ -739,21 +834,31 @@
                 try {
                     const docRef = doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', newRecord.id);
                     await setDoc(docRef, newRecord);
-                } catch (err) {}
+                } catch (err) {
+                    showToast('서버 저장 중 오류가 발생했습니다.', 'error');
+                }
             }
+            showLoading(false);
             closeRecordModal();
             renderApp();
+            showToast('새로운 차트가 성공적으로 등록되었습니다.', 'success');
         }
 
         async function deleteRecord(id) {
             if (!confirm('기록을 삭제하시겠습니까?')) return;
+            showLoading(true);
+
             window.appState.records = window.appState.records.filter(r => r.id !== id);
             if (window.appState.user && window.appState.db) {
                 try {
                     await deleteDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'health_logs', id));
-                } catch (err) {}
+                } catch (err) {
+                    showToast('삭제 중 오류가 발생했습니다.', 'error');
+                }
             }
+            showLoading(false);
             renderApp();
+            showToast('차트가 삭제되었습니다.', 'info');
         }
 
         async function updateInventoryCount(id, delta) {
@@ -777,6 +882,7 @@
                 } catch (err) {}
             }
             renderApp();
+            showToast('재고 수량이 수정되었습니다.', 'success');
         }
 
         async function saveInventoryItem() {
@@ -787,6 +893,7 @@
             const unit = document.getElementById('inv-unit').value.trim() || '개';
             if (!name) return;
 
+            showLoading(true);
             const newItem = { id: 'inv-' + Date.now(), kit, name, category, count, minCount: 5, unit };
             window.appState.inventory.push(newItem);
             if (window.appState.user && window.appState.db) {
@@ -794,8 +901,10 @@
                     await setDoc(doc(window.appState.db, 'artifacts', window.appState.appId, 'users', window.appState.user.uid, 'inventory', newItem.id), newItem);
                 } catch (err) {}
             }
+            showLoading(false);
             closeInventoryModal();
             renderApp();
+            showToast('새 물품이 등록되었습니다.', 'success');
         }
 
         function toggleDarkMode() {
